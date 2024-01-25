@@ -12,7 +12,7 @@ export const useAuthStore = defineStore("authStore", {
   actions: {
     async login(role: String, data: any) {
       this.loading = true;
-      const { $api } = useNuxtApp();
+      const { $api } = useNuxtAppd();
       try {
         const response = await $api?.post(`user/login/${role}`, data);
         const result = response?.data;
