@@ -1,0 +1,35 @@
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap");
+//variables & functions
+@import "abstracts/variables";
+@import "./abstracts/mixins";
+@import "abstracts/colors";
+@import "./abstracts/breakpoints";
+@import "./abstracts/typography";
+@import "./abstracts/scrollbar";
+
+//base
+@import "./base/reset";
+@import "./base/utilities";
+
+//laoyuts
+@import "./layouts/header";
+@import "./layouts/content";
+@import "./layouts/footer";
+
+//client layouts
+@import "./layouts/client/index";
+
+//default layout
+@import "./layouts/default/index";
+@import "./layouts/admin/index";
+
+//compontents
+@import "./components/buttons";
+@import "./components/card";
+@import "./components/table";
+
+//pages
+@import "./pages/home";
+@import "./pages/auth/login";
+@import "./pages/admin/examen";
+@import "./pages/admin/messagerie";

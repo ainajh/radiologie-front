@@ -1,0 +1,19 @@
+th,
+td {
+  font-size: 15px !important;
+}
+tr{
+    height: 50px !important;
+}
+.header-medecin {
+  background-color: $secondary;
+  color: white;
+  & > th {
+    font-weight: bold;
+  }
+}
+.q-table td.td-urgent{
+    background-color: rgb(204, 13, 13);
+    color: white;
+    font-weight: bold;
+}
