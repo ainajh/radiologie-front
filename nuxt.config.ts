@@ -21,7 +21,7 @@ export default defineNuxtConfig({
   },
   modules: ["@nuxtjs/tailwindcss", "@pinia/nuxt", "nuxt-quasar-ui"],
   imports: {
-    dirs: ["stores"],
+    dirs: ["stores", "utils"],
   },
   quasar: {
     config: {

@@ -1,0 +1,36 @@
+<script setup lang="ts">
+import UpdateEventModal from './UpdateEventModal.vue'
+import isBeforeToday from '@/utils/functions/is-before-today'
+const props = defineProps(['shift', 'updateShift', 'deleteShift'])
+
+function onDeleteBadget() {
+  console.log(`click sur ${props.shift.name}`)
+  // if (isBeforeToday(props.shift.date)) return
+  props.deleteShift(props.shift)
+}
+</script>
+
+<template>
+  <div class="flex-1 h-auto w-full">
+    <UpdateEventModal :shift="props.shift" :updateShift="props.updateShift">
+      <div class="flex flex-nowrap justify-center items-center">
+        <button
+          class="w-full flex flex-row space-x-0.5 justify-center items-center h-auto my-0.5 px-2 rounded bg-cyan-800"
+        >
+          <p class="text-xs text-start flex-1 py-0.5 w-full rounded bg-cyan-800 text-white">
+            {{ props.shift.name }}
+          </p>
+          <button
+            v-if="!isBeforeToday(props.shift.date)"
+            class="bg-pink-100 flex flex-nowrap justify-center items-center max-h-3 min-w-3 rounded"
+            @click.stop="onDeleteBadget"
+          >
+            <p class="items-center flex justify-center text-cyan-800 font-bold text-sm">&times;</p>
+          </button>
+        </button>
+      </div>
+    </UpdateEventModal>
+  </div>
+</template>
+
+<style scoped></style>
