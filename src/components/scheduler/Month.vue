@@ -1,18 +1,27 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import Week from './Week.vue'
 import Morning from './Morning.vue'
 import Afternoon from './Afternoon.vue'
 import getMonth from '@/utils/functions/get-month'
+import ScheduleService from '@/services/schedule.service'
+import TypeService from '@/services/type.service'
 import type { DataShift } from '@/utils/constants/shift-interface'
-import { Tab } from '@/utils/data/blocs-data'
 import { TimeInDay } from '@/utils/constants/time-in-day'
+import UserService from '@/services/user.service'
 
 let currentMonth = ref(getMonth())
 let weekIndex = ref(0)
 let monthIndex = ref(0)
-let data = ref<[DataShift?]>([])
+let data = ref<any[]>()
+const userList = await UserService.getAll()
+const typeTab =  await TypeService.getAll()
+
+
+onMounted(async () =>{
+  data.value = await ScheduleService.getAll()
+})
 
 function increment() {
   if (weekIndex.value == 0) {
@@ -44,10 +53,7 @@ function thisMonth() {
   })
   if (i !== -1) {
     weekIndex.value = i
-    return
   }
-  console.log('No match found')
-  return
 }
 
 function nextMonth(isweekIndexChange = true) {
@@ -66,50 +72,22 @@ function actualDate() {
   return dayjs(new Date(dayjs().year(), monthIndex.value)).format('MMMM YYYY')
 }
 
-function saveShift(dataShift: DataShift) {
-  if (data.value === undefined) {
-    data.value = [dataShift]
-    return
-  }
-  data.value.push(dataShift)
+async function saveShift(dataShift: DataShift) {
+  if (data.value === undefined) return
+  await ScheduleService.create(dataShift)
+  data.value = await ScheduleService.getAll()
 }
 
-function updateShift(oldShift: DataShift, dataShift: DataShift) {
+async function updateShift( updatedShift: DataShift) {
   if (data.value === undefined) return
-  const index = data.value.findIndex((shift) => {
-    return (
-      dayjs(shift?.date).format('DD-MM-YYYY') === dayjs(oldShift.date).format('DD-MM-YYYY') &&
-      shift?.shift === oldShift.shift &&
-      shift?.name === oldShift.name &&
-      shift.block === oldShift.block
-    )
-  })
-
-  if (index !== -1) {
-    data.value[index] = dataShift
-    return
-  }
-  console.log('No match found')
-  return
+  await ScheduleService.update(updatedShift)
+  data.value = await ScheduleService.getAll()
 }
 
-function deleteShift(dataShift: DataShift) {
+async function deleteShift(id:number) {
   if (data.value === undefined) return
-  const index = data.value.findIndex((shift) => {
-    return (
-      dayjs(shift?.date).format('DD-MM-YYYY') === dayjs(dataShift.date).format('DD-MM-YYYY') &&
-      shift?.shift === dataShift.shift &&
-      shift?.name === dataShift.name &&
-      shift.block === dataShift.block
-    )
-  })
-
-  if (index !== -1) {
-    data.value.splice(index, 1)
-    return
-  }
-  console.log('No match found')
-  return
+  await ScheduleService.deleteOne(id)
+  data.value = await ScheduleService.getAll()
 }
 </script>
 
@@ -153,7 +131,7 @@ function deleteShift(dataShift: DataShift) {
       <button
         @click="
           (e: MouseEvent) => {
-            nextMonth()
+            nextMonth() 
             return e
           }
         "
@@ -164,7 +142,7 @@ function deleteShift(dataShift: DataShift) {
       <p class="mx-5">{{ actualDate() }}</p>
     </div>
     <div class="w-full flex flex-row flex-nowrap">
-      <div class="w-20 flex items-center justify-center">
+      <div class="w-20 max-w-20 flex items-center justify-center">
         <p class="text-center"></p>
       </div>
       <div class="w-full flex flex-row flex-nowrap my-1 space-x-0.5">
@@ -173,9 +151,9 @@ function deleteShift(dataShift: DataShift) {
       </div>
     </div>
 
-    <div class="w-full flex flex-row flex-nowrap" v-for="(e, i) in Tab" :key="i">
+    <div class="w-full flex flex-row flex-nowrap" v-for="(e, i) in typeTab" :key="i">
       <div class="w-20 flex items-center justify-center">
-        <p class="text-center">{{ e }}</p>
+        <p class="text-center w-20 overflow-elipsis ">{{ e.nom_type +  "-"  + e.nom_sous_type }}</p>
       </div>
       <div class="w-full flex flex-col">
         <div class="flex flex-row flex-nowrap">
@@ -190,6 +168,9 @@ function deleteShift(dataShift: DataShift) {
             :block="e"
             :deleteShift="deleteShift"
             :monthIndex="monthIndex"
+            :typeTab="typeTab"
+            :userList="userList"
+            
           />
         </div>
         <div class="flex flex-row flex-nowrap">
@@ -204,6 +185,8 @@ function deleteShift(dataShift: DataShift) {
             :block="e"
             :deleteShift="deleteShift"
             :monthIndex="monthIndex"
+            :typeTab="typeTab"
+            :userList="userList"
           />
         </div>
       </div>

@@ -2,37 +2,42 @@
 import type { DataShift } from '@/utils/constants/shift-interface'
 import { TimeInDay } from '@/utils/constants/time-in-day'
 import { ref } from 'vue'
-import { Tab } from '@/utils/data/blocs-data'
 import dayjs from 'dayjs'
 import isBeforeToday from '@/utils/functions/is-before-today'
 
-const props = defineProps(['shift', 'updateShift'])
+const props = defineProps(['shift', 'updateShift', 'typeTab', "block", "userList", "actualShift"])
 
 let isOpen = ref(false)
-let inputName = ref(props.shift.name)
-let inputDate = ref(props.shift.date.format('YYYY-MM-DD'))
+let inputName = ref(props.shift?.nom)
+let inputPerson = ref<number>(props.shift?.idPerson)
+let inputDate = ref(dayjs(props.shift?.date).format('YYYY-MM-DD'))
 let inputShift = ref<TimeInDay>(props.shift.shift)
-let inputBlock = ref<string>(props.shift.block)
+let inputBlock = ref<number>(props.shift.idType)
 
 function toggleModal() {
-  if (isBeforeToday(props.shift.date)) return
+  console.log("eee",props?.userList)
+  if (isBeforeToday(dayjs(props.shift?.date))) return
   isOpen.value = !isOpen.value
 }
 
 function updateShift() {
   const updatedShift: DataShift = {
-    name: inputName.value,
-    date: dayjs(new Date(inputDate.value)),
+    id: props.shift?.id,
+    nom: inputName.value,
+    date: dayjs(new Date(inputDate.value)).format("YYYY-MM-DD"),
     shift: inputShift.value,
-    block: inputBlock.value
+    idType: inputBlock.value,
+    idPerson: inputPerson.value,
   }
-  if (isBeforeToday(updatedShift.date)) {
+  if (isBeforeToday(dayjs(new Date(inputDate.value)))) {
     isOpen.value = !isOpen.value
     return
   }
-  props.updateShift(props.shift, updatedShift)
+  props.updateShift(updatedShift)
   isOpen.value = !isOpen.value
 }
+
+
 </script>
 <template>
   <button class="w-full" @click.stop="toggleModal">
@@ -60,7 +65,10 @@ function updateShift() {
             </div>
             <div class="flex flex-col space-x-2 space-y-4 items-start">
               <label for="name">Name:</label>
-              <input type="name" class="form-input px-4 py-1 rounded" v-model="inputName" />
+              <select class="form-select py-1 rounded w-full" id="name" v-model="inputPerson">
+                <option v-for="(e, i) in props?.userList" :key="i" :value="e?.id">{{ e?.nom }}</option>
+              </select>
+              <!-- <input type="name" class="form-input px-4 py-1 rounded" v-model="inputName" /> -->
               <label for="date">Select Date:</label>
               <input type="date" v-model="inputDate" />
               <label for="shift">Select Shift:</label>
@@ -70,7 +78,7 @@ function updateShift() {
               </select>
               <label for="block">Select Shift:</label>
               <select class="form-select py-1 rounded" id="block" v-model="inputBlock">
-                <option v-for="(e, i) in Tab" :key="i" :value="e">{{ e }}</option>
+                <option v-for="(e, i) in props?.typeTab" :key="i" :value="e?.id">{{ e?.nom_type + "-" + e?.nom_sous_type }}</option>
               </select>
               <div class="flex flex-row space-x-5">
                 <button

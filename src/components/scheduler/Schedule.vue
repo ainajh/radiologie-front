@@ -13,17 +13,20 @@ const props = defineProps([
   'shifts',
   'block',
   'deleteShift',
-  'monthIndex'
+  'monthIndex', 
+  "typeTab",
+  "actualShift",
+  "userList"
 ])
 
 function filteredShifts(): [DataShift?] {
   const desiredShift = props.isMorning ? TimeInDay.Morning : TimeInDay.Afternoon
-  if (props.shifts.length != 0) {
-    return props.shifts.filter((shift: DataShift) => {
+  if (props.shifts?.length != 0) {
+    return props.shifts?.filter((shift: DataShift) => {
       return (
         dayjs(shift.date).format('DD-MM-YYYY') === dayjs(props.date).format('DD-MM-YYYY') &&
         shift.shift === desiredShift &&
-        shift.block === props.block
+        shift.idType === props.block?.id
       )
     })
   }
@@ -37,18 +40,22 @@ function filteredShifts(): [DataShift?] {
     :class="{
       'bg-pink-200': props.isMorning,
       'bg-cyan-200': !props.isMorning,
-      ' bg-slate-200 ': isBeforeToday(props.date)
+      ' bg-slate-200 ': isBeforeToday(props?.date)
     }"
   >
     <p class="text-center text-gray-400">
       {{ props.label }}
     </p>
-    <div v-for="(shift, i) in filteredShifts()" :key="shift?.name">
+    <div v-for="(shift, i) in filteredShifts()" :key="shift?.id">
       <BadgePersonInShift
-        :name="shift?.name"
+        :userList="props.userList"
+        :name="shift?.nom"
         :shift="shift"
         :updateShift="props.updateShift"
         :deleteShift="props.deleteShift"
+        :typeTab="props.typeTab"
+        :block="props.block"
+        :actualShift="props.actualShift"
       />
     </div>
   </div>

@@ -1,30 +1,32 @@
 <script setup lang="ts">
-import type { DataShift } from '@/utils/constants/shift-interface'
-import { TimeInDay } from '@/utils/constants/time-in-day'
 import isBeforeToday from '@/utils/functions/is-before-today'
 import { ref } from 'vue'
+import type { DataShift } from '@/utils/constants/shift-interface';
+import dayjs from 'dayjs';
 
-const props = defineProps(['date', 'isMorning', 'saveShift', 'block'])
+const props = defineProps(['date', 'isMorning', 'saveShift', 'block', 'userList', 'actualShift'])
 
 let isOpen = ref(false)
-let inputValue = ref('')
+let inputValue = ref<number>()
 
 function toggleModal() {
   if (isBeforeToday(props.date)) return
   isOpen.value = !isOpen.value
 }
 
-function saveData() {
-  console.log('Save data ', inputValue)
-  const newShift: DataShift = {
-    name: inputValue.value,
-    date: props.date,
-    shift: props.isMorning ? TimeInDay.Morning : TimeInDay.Afternoon,
-    block: props.block
+async function saveData() {
+  if(inputValue.value){
+    const newSchedule: DataShift = {
+      date: dayjs(new Date(props.date)).format("YYYY-MM-DD"), 
+      shift: props.actualShift, 
+      idPerson: inputValue.value,
+      idType: props.block.id
+    }
+    await props.saveShift(newSchedule)
   }
-  props.saveShift(newShift)
+  
   isOpen.value = !isOpen.value
-  inputValue.value = ''
+  inputValue.value = 0
 }
 </script>
 <template>
@@ -50,12 +52,15 @@ function saveData() {
             <div class="flex flex-col space-x-2 space-y-4 items-start">
               <p class="">{{ props.date.format('DD-MM-YYYY') }}</p>
               <p>Name</p>
-              <input
+              <select class="form-select py-1 rounded w-full" id="block" v-model="inputValue">
+                <option v-for="(e, i) in props?.userList" :key="i" :value="e?.id">{{ e?.nom }}</option>
+              </select>
+              <!-- <input
                 type="name"
                 class="form-input px-4 py-1 rounded"
                 v-model="inputValue"
                 placeholder="Name ..."
-              />
+              /> -->
               <div class="flex flex-row space-x-5">
                 <button
                   @click="toggleModal"

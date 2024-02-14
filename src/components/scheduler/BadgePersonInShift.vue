@@ -1,27 +1,27 @@
 <script setup lang="ts">
+import dayjs from 'dayjs'
 import UpdateEventModal from './UpdateEventModal.vue'
 import isBeforeToday from '@/utils/functions/is-before-today'
-const props = defineProps(['shift', 'updateShift', 'deleteShift'])
+const props = defineProps(['shift', 'updateShift', 'deleteShift', 'typeTab', "block" , "userList"])
+
 
 function onDeleteBadget() {
-  console.log(`click sur ${props.shift.name}`)
-  // if (isBeforeToday(props.shift.date)) return
-  props.deleteShift(props.shift)
+  props.deleteShift(props.shift?.id)
 }
 </script>
 
 <template>
   <div class="flex-1 h-auto w-full">
-    <UpdateEventModal :shift="props.shift" :updateShift="props.updateShift">
+    <UpdateEventModal :shift="props.shift" :updateShift="props.updateShift" :typeTab="props.typeTab" :block="props.block" :userList="props.userList">
       <div class="flex flex-nowrap justify-center items-center">
         <button
           class="w-full flex flex-row space-x-0.5 justify-center items-center h-auto my-0.5 px-2 rounded bg-cyan-800"
         >
           <p class="text-xs text-start flex-1 py-0.5 w-full rounded bg-cyan-800 text-white">
-            {{ props.shift.name }}
+            {{ props.shift.nom }}
           </p>
           <button
-            v-if="!isBeforeToday(props.shift.date)"
+            v-if="!isBeforeToday(dayjs( props.shift?.date))"
             class="bg-pink-100 flex flex-nowrap justify-center items-center max-h-3 min-w-3 rounded"
             @click.stop="onDeleteBadget"
           >
