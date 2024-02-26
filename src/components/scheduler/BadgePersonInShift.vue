@@ -18,7 +18,6 @@ function onDeleteBadget() {
 
 <template>
   <div class="flex-1 h-auto w-full">
-    {{ console.log(props.shift.typeOfSchedule) }}
     <UpdateEventModal
       :shift="props.shift"
       :updateShift="props.updateShift"

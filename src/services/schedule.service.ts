@@ -8,11 +8,9 @@ const resDataHandler = (res: AxiosResponse) => {
       return res.data?.data;
     }
     case 201: {
-      console.log("created ", res);
       return res.data?.data;
     }
     default: {
-      console.log("default", res);
       return res.data;
     }
   }

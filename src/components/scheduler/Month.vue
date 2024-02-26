@@ -98,7 +98,6 @@ async function copyShcedule() {
     currentMonth.value[weekIndex.value][0].format("YYYY-MM-DD"),
     currentMonth.value[weekIndex.value][6].format("YYYY-MM-DD"),
   ];
-  console.log("copy  : ", copyShcedules.value);
 }
 
 async function pasteShcedule() {
@@ -106,7 +105,6 @@ async function pasteShcedule() {
     currentMonth.value[weekIndex.value][0].format("YYYY-MM-DD"),
     currentMonth.value[weekIndex.value][6].format("YYYY-MM-DD"),
   ];
-  console.log("paste :  ", copyShcedules.value, " => ", pasteShcedules);
   await ScheduleService.copyPaste(copyShcedules.value, pasteShcedules);
   data.value = await ScheduleService.getAll();
 }

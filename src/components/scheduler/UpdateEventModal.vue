@@ -23,7 +23,6 @@ let inputShift = ref<TimeInDay>(props.shift.shift);
 let inputBlock = ref<number>(props.shift.idType);
 
 function toggleModal() {
-  console.log("eee", props?.userList);
   if (isBeforeToday(dayjs(props.shift?.date))) return;
   isOpen.value = !isOpen.value;
 }
