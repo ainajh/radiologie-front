@@ -1,13 +1,16 @@
-import type { TimeInDay } from './time-in-day'
+import type { TimeInDay } from "./time-in-day";
 
 export interface DataShift {
-  id?: number ,
-  date: any ,
-  shift: TimeInDay,
-  idPerson: number,
-  idType: number,
-  nom?: String,
-  email?: String,
-  typeLabel?: String,
-  subTypeLabel?: String
+  id?: number;
+  date: any;
+  shift: TimeInDay;
+  idPerson: number;
+  idType: number;
+  nom?: string;
+  email?: string;
+  typeLabel?: string;
+  subTypeLabel?: string;
+  typeOfSchedule?: number;
+  dateStart?: string;
+  dateEnd?: string;
 }

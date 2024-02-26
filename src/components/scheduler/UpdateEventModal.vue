@@ -1,23 +1,31 @@
 <script setup lang="ts">
-import type { DataShift } from '@/utils/constants/shift-interface'
-import { TimeInDay } from '@/utils/constants/time-in-day'
-import { ref } from 'vue'
-import dayjs from 'dayjs'
-import isBeforeToday from '@/utils/functions/is-before-today'
+import type { DataShift } from "@/utils/constants/shift-interface";
+import { TimeInDay } from "@/utils/constants/time-in-day";
+import { ref } from "vue";
+import dayjs from "dayjs";
+import isBeforeToday from "@/utils/functions/is-before-today";
+import UserService from "~/services/user.service";
 
-const props = defineProps(['shift', 'updateShift', 'typeTab', "block", "userList", "actualShift"])
-
-let isOpen = ref(false)
-let inputName = ref(props.shift?.nom)
-let inputPerson = ref<number>(props.shift?.idPerson)
-let inputDate = ref(dayjs(props.shift?.date).format('YYYY-MM-DD'))
-let inputShift = ref<TimeInDay>(props.shift.shift)
-let inputBlock = ref<number>(props.shift.idType)
+const props = defineProps([
+  "shift",
+  "updateShift",
+  "typeTab",
+  "block",
+  "userList",
+  "actualShift",
+]);
+const userList = await UserService.getAll();
+let isOpen = ref(false);
+let inputName = ref(props.shift?.nom);
+let inputPerson = ref<number>(props.shift?.idPerson);
+let inputDate = ref(dayjs(props.shift?.date).format("YYYY-MM-DD"));
+let inputShift = ref<TimeInDay>(props.shift.shift);
+let inputBlock = ref<number>(props.shift.idType);
 
 function toggleModal() {
-  console.log("eee",props?.userList)
-  if (isBeforeToday(dayjs(props.shift?.date))) return
-  isOpen.value = !isOpen.value
+  console.log("eee", props?.userList);
+  if (isBeforeToday(dayjs(props.shift?.date))) return;
+  isOpen.value = !isOpen.value;
 }
 
 function updateShift() {
@@ -28,16 +36,14 @@ function updateShift() {
     shift: inputShift.value,
     idType: inputBlock.value,
     idPerson: inputPerson.value,
-  }
+  };
   if (isBeforeToday(dayjs(new Date(inputDate.value)))) {
-    isOpen.value = !isOpen.value
-    return
+    isOpen.value = !isOpen.value;
+    return;
   }
-  props.updateShift(updatedShift)
-  isOpen.value = !isOpen.value
+  props.updateShift(updatedShift);
+  isOpen.value = !isOpen.value;
 }
-
-
 </script>
 <template>
   <button class="w-full" @click.stop="toggleModal">
@@ -51,10 +57,10 @@ function updateShift() {
     <transition name="modal-fade">
       <div
         v-if="isOpen"
-        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-5"
       >
         <button @click.stop="" class="">
-          <div class="bg-white p-8 rounded-lg shadow-lg">
+          <div class="bg-white p-8 rounded-lg shadow-lg w-[500px]">
             <div class="flex justify-end">
               <button
                 @click.stop="toggleModal"
@@ -65,20 +71,44 @@ function updateShift() {
             </div>
             <div class="flex flex-col space-x-2 space-y-4 items-start">
               <label for="name">Name:</label>
-              <select class="form-select py-1 rounded w-full" id="name" v-model="inputPerson">
-                <option v-for="(e, i) in props?.userList" :key="i" :value="e?.id">{{ e?.nom }}</option>
+              <select
+                class="form-select py-1 rounded w-full"
+                id="name"
+                v-model="inputPerson"
+              >
+                <option v-for="(e, i) in userList" :key="i" :value="e?.id">
+                  {{ e?.nom }}
+                </option>
               </select>
               <!-- <input type="name" class="form-input px-4 py-1 rounded" v-model="inputName" /> -->
               <label for="date">Select Date:</label>
               <input type="date" v-model="inputDate" />
               <label for="shift">Select Shift:</label>
-              <select class="form-select py-1 rounded" id="shift" v-model="inputShift">
-                <option :value="TimeInDay.Morning">{{ TimeInDay.Morning }}</option>
-                <option :value="TimeInDay.Afternoon">{{ TimeInDay.Afternoon }}</option>
+              <select
+                class="form-select py-1 rounded"
+                id="shift"
+                v-model="inputShift"
+              >
+                <option :value="TimeInDay.Morning">
+                  {{ TimeInDay.Morning }}
+                </option>
+                <option :value="TimeInDay.Afternoon">
+                  {{ TimeInDay.Afternoon }}
+                </option>
               </select>
               <label for="block">Select Shift:</label>
-              <select class="form-select py-1 rounded" id="block" v-model="inputBlock">
-                <option v-for="(e, i) in props?.typeTab" :key="i" :value="e?.id">{{ e?.nom_type + "-" + e?.nom_sous_type }}</option>
+              <select
+                class="form-select py-1 rounded"
+                id="block"
+                v-model="inputBlock"
+              >
+                <option
+                  v-for="(e, i) in props?.typeTab"
+                  :key="i"
+                  :value="e?.id"
+                >
+                  {{ e?.nom_type + "-" + e?.nom_sous_type }}
+                </option>
               </select>
               <div class="flex flex-row space-x-5">
                 <button

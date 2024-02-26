@@ -1,93 +1,114 @@
 <script setup lang="ts">
-import dayjs from 'dayjs'
-import { ref, onMounted } from 'vue'
-import Week from './Week.vue'
-import Morning from './Morning.vue'
-import Afternoon from './Afternoon.vue'
-import getMonth from '@/utils/functions/get-month'
-import ScheduleService from '@/services/schedule.service'
-import TypeService from '@/services/type.service'
-import type { DataShift } from '@/utils/constants/shift-interface'
-import { TimeInDay } from '@/utils/constants/time-in-day'
-import UserService from '@/services/user.service'
+import dayjs from "dayjs";
+import { ref, onMounted } from "vue";
+import Week from "./Week.vue";
+import Morning from "./Morning.vue";
+import Afternoon from "./Afternoon.vue";
+import getMonth from "@/utils/functions/get-month";
+import ScheduleService from "@/services/schedule.service";
+import TypeService from "@/services/type.service";
+import type { DataShift } from "@/utils/constants/shift-interface";
+import { TimeInDay } from "@/utils/constants/time-in-day";
+import UserService from "@/services/user.service";
 
-let currentMonth = ref(getMonth())
-let weekIndex = ref(0)
-let monthIndex = ref(0)
-let data = ref<any[]>()
-const userList = await UserService.getAll()
-const typeTab =  await TypeService.getAll()
+let currentMonth = ref(getMonth());
+let weekIndex = ref(0);
+let monthIndex = ref(0);
+let data = ref<any[]>();
+let copyShcedules = ref<any[]>();
+const userList = await UserService.getAll();
+const typeTab = await TypeService.getAll();
 
-
-onMounted(async () =>{
-  data.value = await ScheduleService.getAll()
-})
+onMounted(async () => {
+  data.value = await ScheduleService.getAll();
+  thisMonth();
+});
 
 function increment() {
   if (weekIndex.value == 0) {
-    weekIndex.value = 4
-    previousMonth(false)
-    return
+    weekIndex.value = 4;
+    previousMonth(false);
+    return;
   }
-  weekIndex.value--
+  weekIndex.value--;
 }
 
 function decrement() {
   if (weekIndex.value == 4) {
-    weekIndex.value = 0
-    nextMonth(false)
-    return
+    weekIndex.value = 0;
+    nextMonth(false);
+    return;
   }
-  weekIndex.value++
+  weekIndex.value++;
 }
 
 function thisMonth() {
-  currentMonth.value = getMonth()
-  monthIndex.value = dayjs().month()
+  currentMonth.value = getMonth();
+  monthIndex.value = dayjs().month();
   const i = currentMonth.value.findIndex((shift, i) => {
-    const found = currentMonth.value[i].findIndex((e) => e.format('DD') === dayjs().format('DD'))
+    const found = currentMonth.value[i].findIndex(
+      (e) => e.format("DD") === dayjs().format("DD")
+    );
     if (found !== -1) {
-      return true
+      return true;
     }
-    return false
-  })
+    return false;
+  });
   if (i !== -1) {
-    weekIndex.value = i
+    weekIndex.value = i;
   }
 }
 
 function nextMonth(isweekIndexChange = true) {
-  monthIndex.value++
-  if (isweekIndexChange) weekIndex.value = 0
-  currentMonth.value = getMonth(monthIndex.value)
+  monthIndex.value++;
+  if (isweekIndexChange) weekIndex.value = 0;
+  currentMonth.value = getMonth(monthIndex.value);
 }
 
 function previousMonth(isweekIndexChange = true) {
-  monthIndex.value--
-  if (isweekIndexChange) weekIndex.value = 4
-  currentMonth.value = getMonth(monthIndex.value)
+  monthIndex.value--;
+  if (isweekIndexChange) weekIndex.value = 4;
+  currentMonth.value = getMonth(monthIndex.value);
 }
 
 function actualDate() {
-  return dayjs(new Date(dayjs().year(), monthIndex.value)).format('MMMM YYYY')
+  return dayjs(new Date(dayjs().year(), monthIndex.value)).format("MMMM YYYY");
 }
 
 async function saveShift(dataShift: DataShift) {
-  if (data.value === undefined) return
-  await ScheduleService.create(dataShift)
-  data.value = await ScheduleService.getAll()
+  if (data.value === undefined) return;
+  await ScheduleService.create(dataShift);
+  data.value = await ScheduleService.getAll();
 }
 
-async function updateShift( updatedShift: DataShift) {
-  if (data.value === undefined) return
-  await ScheduleService.update(updatedShift)
-  data.value = await ScheduleService.getAll()
+async function updateShift(updatedShift: DataShift) {
+  if (data.value === undefined) return;
+  await ScheduleService.update(updatedShift);
+  data.value = await ScheduleService.getAll();
 }
 
-async function deleteShift(id:number) {
-  if (data.value === undefined) return
-  await ScheduleService.deleteOne(id)
-  data.value = await ScheduleService.getAll()
+async function deleteShift(id: number) {
+  if (data.value === undefined) return;
+  await ScheduleService.deleteOne(id);
+  data.value = await ScheduleService.getAll();
+}
+
+async function copyShcedule() {
+  copyShcedules.value = [
+    currentMonth.value[weekIndex.value][0].format("YYYY-MM-DD"),
+    currentMonth.value[weekIndex.value][6].format("YYYY-MM-DD"),
+  ];
+  console.log("copy  : ", copyShcedules.value);
+}
+
+async function pasteShcedule() {
+  const pasteShcedules = [
+    currentMonth.value[weekIndex.value][0].format("YYYY-MM-DD"),
+    currentMonth.value[weekIndex.value][6].format("YYYY-MM-DD"),
+  ];
+  console.log("paste :  ", copyShcedules.value, " => ", pasteShcedules);
+  await ScheduleService.copyPaste(copyShcedules.value, pasteShcedules);
+  data.value = await ScheduleService.getAll();
 }
 </script>
 
@@ -135,11 +156,37 @@ async function deleteShift(id:number) {
             return e
           }
         "
-        class="flex justify-center items-center h-auto  min-w-5 rounded bg-slate-400 text-white"
+        class="flex justify-center items-center h-auto min-w-5 rounded bg-slate-400 text-white"
       >
         >
       </button>
-      <p class="mx-5">{{ actualDate() }}</p>
+      <p class="mx-5 w-28">{{ actualDate() }}</p>
+      <div class="w-5"></div>
+      <button
+        @click="copyShcedule"
+        class="flex justify-center items-center h-auto min-w-5 rounded bg-slate-400 text-white px-2"
+      >
+        Copy
+      </button>
+      <div class="w-5"></div>
+      <button
+        @click="pasteShcedule"
+        class="flex justify-center items-center h-auto min-w-5 rounded bg-slate-400 text-white px-2"
+      >
+        Paste
+      </button>
+      <div class="flex-1"></div>
+      <div
+        class="w-30 max-h-5 flex items-center justify-center bg-cyan-800 px-5 rounded"
+      >
+        <p class="text-center text-white">Working day</p>
+      </div>
+      <div class="w-5"></div>
+      <div
+        class="w-30 max-h-5 flex items-center justify-center bg-green-600 px-5 rounded"
+      >
+        <p class="text-center text-white">Holiday</p>
+      </div>
     </div>
     <div class="w-full flex flex-row flex-nowrap">
       <div class="w-20 max-w-20 flex items-center justify-center">
@@ -151,9 +198,15 @@ async function deleteShift(id:number) {
       </div>
     </div>
 
-    <div class="w-full flex flex-row flex-nowrap" v-for="(e, i) in typeTab" :key="i">
+    <div
+      class="w-full flex flex-row flex-nowrap"
+      v-for="(e, i) in typeTab"
+      :key="i"
+    >
       <div class="w-20 flex items-center justify-center">
-        <p class="text-center w-20 overflow-elipsis ">{{ e.nom_type +  "-"  + e.nom_sous_type }}</p>
+        <p class="text-center w-20 overflow-elipsis">
+          {{ e.nom_type + "-" + e.nom_sous_type }}
+        </p>
       </div>
       <div class="w-full flex flex-col">
         <div class="flex flex-row flex-nowrap">
@@ -170,7 +223,6 @@ async function deleteShift(id:number) {
             :monthIndex="monthIndex"
             :typeTab="typeTab"
             :userList="userList"
-            
           />
         </div>
         <div class="flex flex-row flex-nowrap">
