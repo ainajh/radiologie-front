@@ -10,6 +10,15 @@ const resDataHandler = (res: AxiosResponse) => {
     case 201: {
       return res.data?.data;
     }
+    case 400: {
+      return res.data?.data;
+    }
+    case 422: {
+      return res.data?.data;
+    }
+    case 500: {
+      return res.data?.data;
+    }
     default: {
       return res.data;
     }

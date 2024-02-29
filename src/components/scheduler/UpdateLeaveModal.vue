@@ -1,52 +1,41 @@
 <script setup lang="ts">
-import isBeforeToday from "@/utils/functions/is-before-today";
 import { ref } from "vue";
-import type { DataShift } from "@/utils/constants/shift-interface";
 import dayjs from "dayjs";
 import UserService from "~/services/user.service";
+import type { LeaveData } from "~/utils/constants/leave-interface";
+import LeaveService from "~/services/leave.service";
 
-const props = defineProps([
-  "date",
-  "isMorning",
-  "saveShift",
-  "block",
-  "userList",
-  "actualShift",
-]);
+const props = defineProps(["dataLeave", "fetchHolidayList"]);
 
 const userList = await UserService.getAll();
 let isOpen = ref(false);
-let inputValue = ref<number>();
-let inputSelectTypeSchedule = ref<number>(0);
+let inputName = ref<number>(props.dataLeave.idPerson);
+let inputTypeOfHoliday = ref<string>("Holiday");
 
-let inputStartDate = ref(dayjs().format("YYYY-MM-DD"));
-let inputEndDate = ref(dayjs().format("YYYY-MM-DD"));
+let inputStartDate = ref(dayjs(props.dataLeave.dateStart).format("YYYY-MM-DD"));
+let inputEndDate = ref(dayjs(props.dataLeave.dateEnd).format("YYYY-MM-DD"));
 
-function toggleModal() {
-  if (isBeforeToday(props.date)) return;
+async function updateHoliday() {
+  const newUpdatedLeave: LeaveData = {
+    id: props.dataLeave.id,
+    idPerson: inputName.value,
+    dateStart: dayjs(new Date(inputStartDate.value)).format("YYYY-MM-DD"),
+    dateEnd: dayjs(new Date(inputEndDate.value)).format("YYYY-MM-DD"),
+    typeOfLeave: inputTypeOfHoliday.value,
+  };
+
+  await LeaveService.update(newUpdatedLeave);
+  props.fetchHolidayList();
+
   isOpen.value = !isOpen.value;
 }
 
-async function saveData() {
-  if (inputValue.value) {
-    const newSchedule: DataShift = {
-      date: dayjs(new Date(props.date)).format("YYYY-MM-DD"),
-      shift: props.actualShift,
-      idPerson: inputValue.value,
-      idType: props.block.id,
-      typeOfSchedule: inputSelectTypeSchedule.value,
-      dateStart: inputStartDate.value,
-      dateEnd: inputEndDate.value,
-    };
-    await props.saveShift(newSchedule);
-  }
-
+function toggleModal() {
   isOpen.value = !isOpen.value;
-  inputValue.value = 0;
 }
 </script>
 <template>
-  <button class="w-full" @click="toggleModal">
+  <button class="w-[75%]" @click="toggleModal">
     <slot></slot>
   </button>
   <button
@@ -72,13 +61,7 @@ async function saveData() {
             <div
               class="flex flex-col space-x-2 space-y-4 items-start w-[500px]"
             >
-              <p class="" v-if="inputSelectTypeSchedule === 0">
-                {{ props.date.format("DD-MM-YYYY") }}
-              </p>
-              <div
-                class="flex flex-row space-x-2"
-                v-if="inputSelectTypeSchedule === 1"
-              >
+              <div class="flex flex-row space-x-2">
                 <div class="flex flex-row space-x-1">
                   <label for="date">Start Date:</label>
                   <input type="date" v-model="inputStartDate" />
@@ -93,7 +76,7 @@ async function saveData() {
               <select
                 class="form-select py-1 rounded w-full"
                 id="block"
-                v-model="inputValue"
+                v-model="inputName"
                 placeholder="name"
               >
                 <option v-for="(e, i) in userList" :key="i" :value="e?.id">
@@ -104,10 +87,9 @@ async function saveData() {
               <select
                 class="form-select py-1 rounded w-full"
                 id="block2"
-                v-model="inputSelectTypeSchedule"
+                v-model="inputTypeOfHoliday"
               >
-                <option :value="0">Working day</option>
-                <!-- <option :value="1">Holiday</option> -->
+                <option :value="'Holiday'">Holiday</option>
               </select>
               <!-- <input
                 type="name"
@@ -123,7 +105,7 @@ async function saveData() {
                   <p>Cancel</p>
                 </button>
                 <button
-                  @click="saveData"
+                  @click="updateHoliday"
                   class="text-black px-2 bg-cyan-300 hover:bg-cyan-500 rounded text-md"
                 >
                   <p>Save</p>
