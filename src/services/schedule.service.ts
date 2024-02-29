@@ -1,22 +1,25 @@
 import type { AxiosResponse } from "axios";
 import type { DataShift } from "~/utils/constants/shift-interface";
+import { useToast } from "vue-toastification";
 
 const resDataHandler = (res: AxiosResponse) => {
   // console.log(res);
+  const toast = useToast();
   switch (res.status) {
     case 200: {
+      if (res.data?.message) toast.success(res.data?.message);
       return res.data?.data;
     }
     case 201: {
-      return res.data?.data;
-    }
-    case 400: {
+      if (res.data?.message) toast.success(res.data?.message);
       return res.data?.data;
     }
     case 422: {
+      if (res.data?.message) toast.error(res.data?.message);
       return res.data?.data;
     }
     case 500: {
+      if (res.data?.message) toast.error(res.data?.message);
       return res.data?.data;
     }
     default: {
@@ -36,7 +39,7 @@ const getAll = async (): Promise<[DataShift] | undefined> => {
 
     return resDataHandler(response);
   } catch (error: any) {
-    console.log(error);
+    return resDataHandler(error.response);
   }
 };
 
@@ -51,7 +54,7 @@ const create = async (data: DataShift): Promise<DataShift | undefined> => {
 
     return resDataHandler(response);
   } catch (error: any) {
-    console.log(error);
+    return resDataHandler(error.response);
   }
 };
 
@@ -66,7 +69,7 @@ const update = async (data: DataShift): Promise<DataShift | undefined> => {
 
     return resDataHandler(response);
   } catch (error: any) {
-    console.log(error);
+    return resDataHandler(error.response);
   }
 };
 
@@ -88,7 +91,7 @@ const copyPaste = async (
 
     return resDataHandler(response);
   } catch (error: any) {
-    console.log(error);
+    return resDataHandler(error.response);
   }
 };
 
@@ -103,7 +106,7 @@ const deleteOne = async (id: number): Promise<DataShift | undefined> => {
 
     return resDataHandler(response);
   } catch (error: any) {
-    console.log(error);
+    return resDataHandler(error.response);
   }
 };
 
