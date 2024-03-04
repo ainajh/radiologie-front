@@ -23,7 +23,7 @@ const props = defineProps([
   >
     <EventModal
       :date="e"
-      :actualShift="TimeInDay.Morning"
+      :actualShift="TimeInDay.Noon"
       :saveShift="props.saveShift"
       :block="props.block"
       :userList="props.userList"
@@ -31,8 +31,7 @@ const props = defineProps([
       <Schedule
         :userList="props.userList"
         :date="e"
-        :isMorning="true"
-        :label="'am'"
+        :label="'noon'"
         :saveShift="props.saveShift"
         :shifts="props.shifts"
         :block="props.block"
@@ -41,7 +40,7 @@ const props = defineProps([
         :deleteShift="props.deleteShift"
         :monthIndex="props.monthIndex"
         :typeTab="props.typeTab"
-        :actualShift="TimeInDay.Morning"
+        :actualShift="TimeInDay.Noon"
       />
     </EventModal>
   </div>

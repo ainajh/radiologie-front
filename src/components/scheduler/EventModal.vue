@@ -7,7 +7,6 @@ import UserService from "~/services/user.service";
 
 const props = defineProps([
   "date",
-  "isMorning",
   "saveShift",
   "block",
   "userList",

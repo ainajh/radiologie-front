@@ -9,6 +9,7 @@ const props = defineProps([
   "typeTab",
   "block",
   "userList",
+  "actualShift",
 ]);
 
 function onDeleteBadget() {
@@ -24,12 +25,13 @@ function onDeleteBadget() {
       :typeTab="props.typeTab"
       :block="props.block"
       :userList="props.userList"
+      :actualShift="props.actualShift"
     >
       <div class="flex flex-nowrap justify-center items-center">
         <button
           class="w-full flex flex-row space-x-0.5 justify-center items-center h-auto my-0.5 px-2 rounded"
           :class="{
-            'bg-green-600': props.shift.typeOfSchedule === 1,
+            'bg-red-600': props.shift.typeOfSchedule === 1,
             'bg-cyan-800': props.shift.typeOfSchedule === 0,
           }"
         >

@@ -1,36 +1,37 @@
 <script setup lang="ts">
-import dayjs from 'dayjs'
-import BadgePersonInShift from './BadgePersonInShift.vue'
-import type { DataShift } from '@/utils/constants/shift-interface'
-import { TimeInDay } from '@/utils/constants/time-in-day'
-import isBeforeToday from '@/utils/functions/is-before-today'
+import dayjs from "dayjs";
+import BadgePersonInShift from "./BadgePersonInShift.vue";
+import type { DataShift } from "@/utils/constants/shift-interface";
+import { TimeInDay } from "@/utils/constants/time-in-day";
+import isBeforeToday from "@/utils/functions/is-before-today";
 const props = defineProps([
-  'date',
-  'isMorning',
-  'label',
-  'saveShift',
-  'updateShift',
-  'shifts',
-  'block',
-  'deleteShift',
-  'monthIndex', 
+  "date",
+  "isMorning",
+  "label",
+  "saveShift",
+  "updateShift",
+  "shifts",
+  "block",
+  "deleteShift",
+  "monthIndex",
   "typeTab",
   "actualShift",
-  "userList"
-])
+  "userList",
+]);
 
 function filteredShifts(): [DataShift?] {
-  const desiredShift = props.isMorning ? TimeInDay.Morning : TimeInDay.Afternoon
+  const desiredShift = props.actualShift;
   if (props.shifts?.length != 0) {
     return props.shifts?.filter((shift: DataShift) => {
       return (
-        dayjs(shift.date).format('DD-MM-YYYY') === dayjs(props.date).format('DD-MM-YYYY') &&
+        dayjs(shift.date).format("DD-MM-YYYY") ===
+          dayjs(props.date).format("DD-MM-YYYY") &&
         shift.shift === desiredShift &&
         shift.idType === props.block?.id
-      )
-    })
+      );
+    });
   }
-  return []
+  return [];
 }
 </script>
 
@@ -38,9 +39,14 @@ function filteredShifts(): [DataShift?] {
   <div
     class="flex-1 h-full w-full min-h-20 p-0.5"
     :class="{
-      'bg-pink-200': props.isMorning,
-      'bg-cyan-200': !props.isMorning,
-      ' bg-slate-200 ': isBeforeToday(props?.date)
+      ' bg-blue-100 ':
+        props.actualShift === TimeInDay.Morning && !isBeforeToday(props?.date),
+      ' bg-cyan-100 ':
+        props.actualShift === TimeInDay.Noon && !isBeforeToday(props?.date),
+      ' bg-yellow-100 ':
+        props.actualShift === TimeInDay.Afternoon &&
+        !isBeforeToday(props?.date),
+      ' bg-slate-100 ': isBeforeToday(props?.date),
     }"
   >
     <p class="text-center text-gray-400">

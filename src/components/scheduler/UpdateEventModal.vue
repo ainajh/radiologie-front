@@ -6,6 +6,8 @@ import dayjs from "dayjs";
 import isBeforeToday from "@/utils/functions/is-before-today";
 import UserService from "~/services/user.service";
 
+import ValidationDefaultNoonShouldShow from "~/utils/functions/validation-noon-should-show";
+
 const props = defineProps([
   "shift",
   "updateShift",
@@ -42,6 +44,17 @@ function updateShift() {
   }
   props.updateShift(updatedShift);
   isOpen.value = !isOpen.value;
+}
+
+function getType() {
+  let found = "";
+  for (const e of props?.typeTab) {
+    if (inputBlock.value === e.id) {
+      found = e?.nom_type + "-" + e?.nom_sous_type;
+    }
+  }
+
+  return ValidationDefaultNoonShouldShow(found);
 }
 </script>
 <template>
@@ -93,6 +106,12 @@ function updateShift() {
                 </option>
                 <option :value="TimeInDay.Afternoon">
                   {{ TimeInDay.Afternoon }}
+                </option>
+                <option
+                  v-if="props.actualShift === TimeInDay.Noon || getType()"
+                  :value="TimeInDay.Noon"
+                >
+                  {{ TimeInDay.Noon }}
                 </option>
               </select>
               <label for="block">Select Shift:</label>
