@@ -1,0 +1,157 @@
+<template>
+  <q-form @submit.prevent="submited()" class="py-3">
+    <h2 class="text-center text-xl py-2 font-bold">Prendre un congé</h2>
+
+    <!-- Type  -->
+    <q-card-section class="q-pt-none">
+      <q-input
+        dense
+        outlined
+        autofocus
+        label="Type"
+        v-model="form.typeOfLeave"
+        lazy-rules
+        :rules="[required]"
+      />
+    </q-card-section>
+    <!-- Type -->
+    <!-- Date de debut  -->
+    <q-card-section class="q-pt-none">
+      <q-input
+        dense
+        outlined
+        autofocus
+        type="date"
+        label="Date de debut"
+        v-model="form.dateStart"
+        lazy-rules
+        :rules="[required]"
+      />
+    </q-card-section>
+    <!-- Date de debut -->
+    <!-- Date de fin  -->
+    <q-card-section class="q-pt-none">
+      <q-input
+        dense
+        outlined
+        autofocus
+        type="date"
+        label="Date de fin"
+        v-model="form.dateEnd"
+        lazy-rules
+        :rules="[required]"
+      />
+    </q-card-section>
+    <!-- Date de fin -->
+
+    <q-card-actions align="right" class="text-primary">
+      <q-btn
+        outline
+        label="Annuler"
+        v-close-popup
+        color="white"
+        class="text-black"
+      />
+      <q-btn
+        :label="action == 'add' ? 'Créer' : 'Modifier'"
+        color="secondary"
+        type="submit"
+        :loading="loading"
+      />
+    </q-card-actions>
+  </q-form>
+</template>
+<script>
+import { useLeaveStore } from "@/stores/leave";
+import { mapState } from "pinia";
+import { mapActions } from "pinia";
+export default {
+  props: ["modelValue", "datas", "action"],
+  emits: ["update:modelValue"],
+  setup() {
+    const user = userStore();
+
+    return { user };
+  },
+  data() {
+    return {
+      form: {
+        idPerson: null,
+        typeOfLeave: null,
+        dateStart: null,
+        dateEnd: null,
+      },
+      is_verified: null,
+      loading: false,
+    };
+  },
+  mounted() {
+    if (this.action == "update") {
+      this.form = {
+        ...this.datas,
+        dateStart: this.formateDate(this.datas?.dateStart),
+        dateEnd: this.formateDate(this.datas?.dateEnd),
+      };
+    }
+  },
+  methods: {
+    ...mapActions(useLeaveStore, ["getAllLeave", "createLeave", "updateLeave"]),
+    required(val) {
+      return val !== null;
+    },
+
+    formateDate(dateS) {
+      const date = new Date(dateS);
+
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const day = date.getDate().toString().padStart(2, "0");
+
+      return `${year}-${month}-${day}`;
+    },
+    async submited() {
+      this.loading = true;
+
+      if (this.action === "add") {
+        await this.handleNewLeave();
+        this.loading = false;
+        return;
+      } else if (this.action === "update") {
+        await this.handleupdateLeave();
+        this.loading = false;
+        return;
+      }
+    },
+    async handleNewLeave() {
+      this.form.idPerson = this.user?.id;
+
+      await this.createLeave(this.form);
+      this.isSuccess();
+    },
+    async handleupdateLeave() {
+      const data = { ...this.form };
+      await this.updateLeave(data);
+      this.isSuccess();
+    },
+    async isSuccess() {
+      const { error, msg } = this.message;
+      if (!error) {
+        await this.getAllLeave(this.user?.id);
+        this.$toast.success(msg);
+        this.form = {
+          idPerson: null,
+          typeOfLeave: null,
+          dateStart: null,
+          dateEnd: null,
+        };
+        this.$emit("update:modelValue", false);
+      } else {
+        this.$toast.error(msg);
+      }
+    },
+  },
+  computed: {
+    ...mapState(useLeaveStore, ["allLeave", "message"]),
+  },
+};
+</script>
