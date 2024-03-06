@@ -73,10 +73,7 @@ const update = async (data: DataShift): Promise<DataShift | undefined> => {
   }
 };
 
-const copyPaste = async (
-  copyDate: any,
-  pasteDate: any
-): Promise<DataShift[] | undefined> => {
+const copyPaste = async (copyDate: any, pasteDate: any): Promise<any> => {
   try {
     const { $api } = useNuxtApp();
     const response = await $api?.post(
@@ -88,6 +85,21 @@ const copyPaste = async (
         },
       }
     );
+
+    return resDataHandler(response);
+  } catch (error: any) {
+    return resDataHandler(error.response);
+  }
+};
+
+const undoCopyPaste = async (copiedId: string): Promise<any> => {
+  try {
+    const { $api } = useNuxtApp();
+    const response = await $api?.get(`/schedule/undoCopyPaste/${copiedId}`, {
+      headers: {
+        Authorization: `Bearer ${useCookie("token").value}`,
+      },
+    });
 
     return resDataHandler(response);
   } catch (error: any) {
@@ -116,6 +128,7 @@ const ScheduleService = {
   deleteOne,
   update,
   copyPaste,
+  undoCopyPaste,
 };
 
 export default ScheduleService;
