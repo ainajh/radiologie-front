@@ -131,13 +131,13 @@ function getType() {
               <div class="flex flex-row space-x-5">
                 <button
                   @click.stop="toggleModal"
-                  class="text-black px-2 bg-pink-300 hover:bg-pink-500 rounded text-md"
+                  class="text-white px-2 bg-red-500 hover:bg-red-600 rounded text-md"
                 >
                   <p>Cancel</p>
                 </button>
                 <button
                   @click.stop="updateShift"
-                  class="text-black px-2 bg-cyan-300 hover:bg-cyan-500 rounded text-md"
+                  class="text-white px-2 bg-cyan-600 hover:bg-cyan-800 rounded text-md"
                 >
                   <p>Update</p>
                 </button>

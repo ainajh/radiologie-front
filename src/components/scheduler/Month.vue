@@ -28,10 +28,12 @@ let copyShcedules = ref<any[]>();
 const userList = await UserService.getAll();
 const typeTab = await TypeService.getAll();
 let isOpen = ref(false);
+let isCopy = ref(false);
 let inputName = ref("");
 let typeOfHoliday = ref("Holiday");
 let inputStartDate = ref(dayjs().format("YYYY-MM-DD"));
 let inputEndDate = ref(dayjs().format("YYYY-MM-DD"));
+let copiedId = ref<string>("");
 
 onMounted(async () => {
   data.value = await ScheduleService.getAll();
@@ -121,6 +123,8 @@ async function copyShcedule() {
     currentMonth.value[weekIndex.value][6].format("YYYY-MM-DD"),
   ];
 
+  isCopy.value = true;
+
   toast.success("Copied ! ");
 }
 
@@ -129,17 +133,21 @@ async function pasteShcedule() {
     currentMonth.value[weekIndex.value][0].format("YYYY-MM-DD"),
     currentMonth.value[weekIndex.value][6].format("YYYY-MM-DD"),
   ];
-  await ScheduleService.copyPaste(copyShcedules.value, pasteShcedules);
+  const dataResponseFromCopy = await ScheduleService.copyPaste(
+    copyShcedules.value,
+    pasteShcedules
+  );
+  copiedId.value = dataResponseFromCopy?.copiedId ?? "";
+  isCopy.value = false;
+  copyShcedules.value = [];
   data.value = await ScheduleService.getAll();
 }
 
 async function cancelCopyShcedule() {
-  copyShcedules.value = [
-    currentMonth.value[weekIndex.value][0].format("YYYY-MM-DD"),
-    currentMonth.value[weekIndex.value][6].format("YYYY-MM-DD"),
-  ];
+  await ScheduleService.undoCopyPaste(copiedId.value);
 
-  toast.success("Copy Canceled ! ");
+  copiedId.value = "";
+  data.value = await ScheduleService.getAll();
 }
 
 function toggleModalCreateHotiday() {
@@ -235,15 +243,17 @@ async function deleteHoliday(id: number) {
       >
         Copy
       </button>
-      <div class="w-5"></div>
+      <div v-if="isCopy" class="w-5"></div>
       <button
+        v-if="isCopy"
         @click="pasteShcedule"
         class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white px-2"
       >
         Paste
       </button>
-      <div class="w-5"></div>
+      <div v-if="copiedId != null && copiedId != ''" class="w-5"></div>
       <button
+        v-if="copiedId != null && copiedId != ''"
         @click="cancelCopyShcedule"
         class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white px-2"
       >
