@@ -9,11 +9,11 @@ export const useLeaveStore = defineStore("leaveStore", {
   }),
 
   actions: {
-    async getAllLeave(id: number) {
+    async getAllLeave() {
       const token = useCookie("token");
       const { $api } = useNuxtApp();
       try {
-        const response = await $api?.get(`leave/leaveOfPerson/${id}`, {
+        const response = await $api?.get(`leave`, {
           headers: {
             Authorization: `Bearer ${token.value}`,
           },

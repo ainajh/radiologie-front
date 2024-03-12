@@ -4,6 +4,22 @@
 
     <!-- Type  -->
     <q-card-section class="q-pt-none">
+      <q-select
+        v-model="form.idPerson"
+        :options="allUsers"
+        label="Nom du personne"
+        emit-value
+        map-options
+        option-value="id"
+        option-label="nom"
+        dense
+        outlined
+        autofocus
+        lazy-rules
+        :rules="[required]"
+      />
+    </q-card-section>
+    <q-card-section class="q-pt-none">
       <q-input
         dense
         outlined
@@ -65,6 +81,7 @@
 import { useLeaveStore } from "@/stores/leave";
 import { mapState } from "pinia";
 import { mapActions } from "pinia";
+import { useUtilisateurStore } from "@/stores/utilisateurs";
 export default {
   props: ["modelValue", "datas", "action"],
   emits: ["update:modelValue"],
@@ -123,8 +140,6 @@ export default {
       }
     },
     async handleNewLeave() {
-      this.form.idPerson = this.user?.id;
-
       await this.createLeave(this.form);
       this.isSuccess();
     },
@@ -136,7 +151,7 @@ export default {
     async isSuccess() {
       const { error, msg } = this.message;
       if (!error) {
-        await this.getAllLeave(this.user?.id);
+        await this.getAllLeave();
         this.$toast.success(msg);
         this.form = {
           idPerson: null,
@@ -152,6 +167,7 @@ export default {
   },
   computed: {
     ...mapState(useLeaveStore, ["allLeave", "message"]),
+    ...mapState(useUtilisateurStore, ["allUsers"]),
   },
 };
 </script>

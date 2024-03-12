@@ -81,6 +81,7 @@
 </template>
 <script>
 import { useLeaveStore } from "@/stores/leave";
+import { useUtilisateurStore } from "@/stores/utilisateurs";
 import { mapState } from "pinia";
 import { mapActions } from "pinia";
 
@@ -123,10 +124,15 @@ export default {
         align: "center",
       },
       {
-        field: "typeOfLeave",
-        label: "Type du congé",
+        field: "nom",
+        label: "Nom",
         align: "center",
       },
+      // {
+      //   field: "typeOfLeave",
+      //   label: "Type du congé",
+      //   align: "center",
+      // },
       {
         field: "dateStart",
         name: "dateStart",
@@ -167,13 +173,16 @@ export default {
     };
   },
   async mounted() {
-    await this.getAllLeave(this.user?.id);
+    await this.getAllLeave();
+    await this.getAllUsers();
   },
   computed: {
     ...mapState(useLeaveStore, ["allLeave", "message"]),
+    ...mapState(useUtilisateurStore, ["allUsers"]),
   },
   methods: {
     ...mapActions(useLeaveStore, ["getAllLeave", "deleteLeave"]),
+    ...mapActions(useUtilisateurStore, ["getAllUsers", ]),
     toggleType(type) {
       this.type = type;
     },
@@ -200,7 +209,7 @@ export default {
           } else {
             Swal.fire("Suppression!", "Type supprimer avec succès", "success");
           }
-          await this.getAllLeave(this.user?.id);
+          await this.getAllLeave();
         }
       });
     },
