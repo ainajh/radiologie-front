@@ -33,11 +33,28 @@ function filteredShifts(): [DataShift?] {
   }
   return [];
 }
+
+function onDrop(event: any) {
+  const shift = JSON.parse(event.dataTransfer.getData("shift"));
+
+  const updatedShift: DataShift = {
+    id: shift?.id,
+    nom: shift?.name,
+    date: props.date?.format("YYYY-MM-DD"),
+    shift: props.actualShift,
+    idType: props.block?.id,
+    idPerson: shift?.idPerson,
+  };
+  props.updateShift(updatedShift);
+}
 </script>
 
 <template>
   <div
-    class="flex-1 h-full w-full min-h-20 p-0.5"
+    class="flex-1 h-full w-full min-h-20 p-0.5 drop-zone"
+    @drop="onDrop($event)"
+    @dragenter.prevent
+    @dragover.prevent
     :class="{
       ' bg-blue-100 ':
         props.actualShift === TimeInDay.Morning && !isBeforeToday(props?.date),
