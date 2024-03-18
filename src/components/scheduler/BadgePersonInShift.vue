@@ -2,6 +2,7 @@
 import dayjs from "dayjs";
 import UpdateEventModal from "./UpdateEventModal.vue";
 import isBeforeToday from "@/utils/functions/is-before-today";
+import type { DataShift } from "~/utils/constants/shift-interface";
 const props = defineProps([
   "shift",
   "updateShift",
@@ -15,10 +16,20 @@ const props = defineProps([
 function onDeleteBadget() {
   props.deleteShift(props.shift?.id);
 }
+
+function onDragStart(event: any, shift: DataShift) {
+  event.dataTransfer.dropEffect = "move";
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("shift", JSON.stringify(shift));
+}
 </script>
 
 <template>
-  <div class="flex-1 h-auto w-full">
+  <div
+    class="flex-1 h-auto w-full drag-el"
+    draggable="true"
+    @dragstart="onDragStart($event, props.shift)"
+  >
     <UpdateEventModal
       :shift="props.shift"
       :updateShift="props.updateShift"
