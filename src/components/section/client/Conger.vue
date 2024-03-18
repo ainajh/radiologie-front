@@ -86,6 +86,7 @@ import { mapState } from "pinia";
 import { mapActions } from "pinia";
 
 import Swal from "sweetalert2";
+const userList = await userService.getAll();
 export default {
   setup() {
     const user = userStore();
@@ -182,7 +183,7 @@ export default {
   },
   methods: {
     ...mapActions(useLeaveStore, ["getAllLeave", "deleteLeave"]),
-    ...mapActions(useUtilisateurStore, ["getAllUsers", ]),
+    ...mapActions(useUtilisateurStore, ["getAllUsers"]),
     toggleType(type) {
       this.type = type;
     },

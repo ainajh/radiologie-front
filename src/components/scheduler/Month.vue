@@ -190,7 +190,7 @@ async function deleteHoliday(id: number) {
 <template>
   <div class="bg-white text-black">
     <div class="flex flex-row flex-nowrap h-5">
-      <p class="mx-5 text-lg">WEEK : {{ weekIndex }}</p>
+      <p class="mx-5 text-lg">Semaine : {{ weekIndex }}</p>
       <button
         @click="increment"
         class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
@@ -211,7 +211,7 @@ async function deleteHoliday(id: number) {
         Today
       </button>
       <p class="mx-5">||</p>
-      <p class="mx-5 text-lg">MONTH</p>
+      <p class="mx-5 text-lg">MOIS</p>
       <button
         @click="
           (e: MouseEvent) => {
@@ -241,7 +241,7 @@ async function deleteHoliday(id: number) {
         @click="copyShcedule"
         class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white px-2"
       >
-        Copy
+        Copier
       </button>
       <div v-if="isCopy" class="w-5"></div>
       <button
@@ -249,7 +249,7 @@ async function deleteHoliday(id: number) {
         @click="pasteShcedule"
         class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white px-2"
       >
-        Paste
+        Coller
       </button>
       <div v-if="copiedId != null && copiedId != ''" class="w-5"></div>
       <button
@@ -257,26 +257,26 @@ async function deleteHoliday(id: number) {
         @click="cancelCopyShcedule"
         class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white px-2"
       >
-        Cancel
+        annuler
       </button>
       <div class="flex-1"></div>
       <div
         class="w-30 max-h-5 flex items-center justify-center bg-cyan-800 px-5 rounded"
       >
-        <p class="text-center text-white">Working day</p>
+        <p class="text-center text-white">en travaille</p>
       </div>
       <div class="w-5"></div>
       <div
         class="w-30 max-h-5 flex items-center justify-center bg-red-600 px-5 rounded"
       >
-        <p class="text-center text-white">Duplication/</p>
+        <p class="text-center text-white">en congé/</p>
       </div>
       <div class="w-5"></div>
       <div
         class="w-30 max-h-5 flex items-center justify-center bg-cyan-600 px-5 rounded"
       >
         <button class="w-full" @click="toggleModalCreateHotiday">
-          <p class="text-center text-white">+ add holiday</p>
+          <p class="text-center text-white">+ ajouter conger</p>
         </button>
       </div>
     </div>
