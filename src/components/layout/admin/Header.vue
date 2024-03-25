@@ -20,6 +20,9 @@
           <li v-if="userDash?.role == 'admin'">
             <nuxt-link to="/dashboard/conge" :class="{ active: $route.path.includes('gestion-type') }">Gestion du congé</nuxt-link>
           </li>
+          <li>
+            <nuxt-link to="/schedule" :class="{ active: $route.path.includes('schedule') }">Planning</nuxt-link>
+          </li>
           <!-- <li v-if="userDash?.role == 'admin'">
             <nuxt-link
               to="/dashboard/gestion-sous-type"
