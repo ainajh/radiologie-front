@@ -15,6 +15,7 @@
       <nuxt-link to="/medecin">Liste des demandes</nuxt-link>
       <nuxt-link to="/medecin/profil">Profil</nuxt-link>
       <nuxt-link :to="`/medecin/modification-mot-de-passe/${user.id}`">Modifier mot de passe</nuxt-link>
+      <!-- <nuxt-link :to="`/medecin/conge`">Prendre congé</nuxt-link> -->
     </nav>
     <div class="flex gap-2">
       <q-avatar style="background-color: aliceblue">
