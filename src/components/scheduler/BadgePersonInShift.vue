@@ -2,6 +2,7 @@
 import dayjs from "dayjs";
 import UpdateEventModal from "./UpdateEventModal.vue";
 import isBeforeToday from "@/utils/functions/is-before-today";
+import generateColorFromString from "@/utils/functions/generate-color-from-string";
 import type { DataShift } from "~/utils/constants/shift-interface";
 const props = defineProps([
   "shift",
@@ -18,16 +19,23 @@ function onDeleteBadget() {
 }
 
 function onDragStart(event: any, shift: DataShift) {
+  if (isBeforeToday(dayjs(props.shift?.date))) return;
+
   event.dataTransfer.dropEffect = "move";
   event.dataTransfer.effectAllowed = "move";
   event.dataTransfer.setData("shift", JSON.stringify(shift));
+}
+
+function generateColor(str: string, isRed: boolean) {
+  if (isRed) return "#dc2626";
+  return generateColorFromString(str);
 }
 </script>
 
 <template>
   <div
-    class="flex-1 h-auto w-full drag-el"
-    draggable="true"
+    class="flex-1 h-auto w-full"
+    :draggable="!isBeforeToday(dayjs(props.shift?.date))"
     @dragstart="onDragStart($event, props.shift)"
   >
     <UpdateEventModal
@@ -44,6 +52,12 @@ function onDragStart(event: any, shift: DataShift) {
           :class="{
             'bg-red-600': props.shift.typeOfSchedule === 1,
             'bg-cyan-800': props.shift.typeOfSchedule === 0,
+          }"
+          :style="{
+            backgroundColor: generateColor(
+              props.shift.nom,
+              props.shift.typeOfSchedule === 1
+            ),
           }"
         >
           <p class="text-xs text-start flex-1 py-0.5 w-full rounded text-white">

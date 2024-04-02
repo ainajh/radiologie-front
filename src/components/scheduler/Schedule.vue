@@ -35,6 +35,8 @@ function filteredShifts(): [DataShift?] {
 }
 
 function onDrop(event: any) {
+  if (isBeforeToday(dayjs(props?.date))) return;
+
   const shift = JSON.parse(event.dataTransfer.getData("shift"));
 
   const updatedShift: DataShift = {

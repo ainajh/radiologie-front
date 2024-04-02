@@ -17,6 +17,7 @@ import type { LeaveData } from "~/utils/constants/leave-interface";
 import isBeforeToday from "~/utils/functions/is-before-today";
 import ValidationDefaultNoonShouldShow from "~/utils/functions/validation-noon-should-show";
 import { useToast } from "vue-toastification";
+import generateColorFromString from "~/utils/functions/generate-color-from-string";
 const toast = useToast();
 
 let currentMonth = ref(getMonth());
@@ -68,7 +69,7 @@ function thisMonth() {
   monthIndex.value = dayjs().month();
   const i = currentMonth.value.findIndex((shift, i) => {
     const found = currentMonth.value[i].findIndex(
-      (e) => e.format("DD") === dayjs().format("DD")
+      (e) => e.format("DD MMMM YYYY") === dayjs().format("DD MMMM YYYY")
     );
     if (found !== -1) {
       return true;
@@ -100,21 +101,33 @@ function actualDate() {
 }
 
 async function saveShift(dataShift: DataShift) {
-  if (data.value === undefined) return;
-  await ScheduleService.create(dataShift);
-  data.value = await ScheduleService.getAll();
+  try {
+    if (dataShift === undefined) return;
+    await ScheduleService.create(dataShift);
+    data.value = await ScheduleService.getAll();
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 async function updateShift(updatedShift: DataShift) {
-  if (data.value === undefined) return;
-  await ScheduleService.update(updatedShift);
-  data.value = await ScheduleService.getAll();
+  try {
+    if (updatedShift === undefined) return;
+    await ScheduleService.update(updatedShift);
+    data.value = await ScheduleService.getAll();
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 async function deleteShift(id: number) {
-  if (data.value === undefined) return;
-  await ScheduleService.deleteOne(id);
-  data.value = await ScheduleService.getAll();
+  try {
+    if (id === undefined) return;
+    await ScheduleService.deleteOne(id);
+    data.value = await ScheduleService.getAll();
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 async function copyShcedule() {
@@ -269,7 +282,7 @@ async function deleteHoliday(id: number) {
       <div
         class="w-30 max-h-5 flex items-center justify-center bg-red-600 px-5 rounded"
       >
-        <p class="text-center text-white">en congé/</p>
+        <p class="text-center text-white">en congé / duplication</p>
       </div>
       <div class="w-5"></div>
       <div
@@ -443,6 +456,9 @@ async function deleteHoliday(id: number) {
         <div class="flex flex-nowrap justify-center items-center">
           <div
             class="w-full flex flex-row space-x-0.5 justify-center items-center h-auto my-0.5 px-2 bg-red-500 rounded"
+            :style="{
+              backgroundColor: generateColorFromString(holiday.nom),
+            }"
           >
             <p
               class="text-sm text-start flex-1 py-0.5 w-full rounded text-white px-2"

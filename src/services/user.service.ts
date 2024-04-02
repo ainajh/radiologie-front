@@ -9,10 +9,12 @@ export interface UserInterface {
   is_verified: number;
 }
 
-const getAll = async (): Promise<[UserInterface] | undefined> => {
+const getAll = async (
+  role = "radiologue"
+): Promise<[UserInterface] | undefined> => {
   try {
     const { $api } = useNuxtApp();
-    const response = await $api?.get(`/user`, {
+    const response = await $api?.get(`/user/only-type/${role}`, {
       headers: {
         Authorization: `Bearer ${useCookie("token").value}`,
       },
