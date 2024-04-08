@@ -23,6 +23,7 @@ let inputPerson = ref<number>(props.shift?.idPerson);
 let inputDate = ref(dayjs(props.shift?.date).format("YYYY-MM-DD"));
 let inputShift = ref<TimeInDay>(props.shift.shift);
 let inputBlock = ref<number>(props.shift.idType);
+let message = ref<string | null>(displayMessage(props.shift.message));
 
 function toggleModal() {
   if (isBeforeToday(dayjs(props.shift?.date))) return;
@@ -37,6 +38,7 @@ function updateShift() {
     shift: inputShift.value,
     idType: inputBlock.value,
     idPerson: inputPerson.value,
+    message: message.value,
   };
   if (isBeforeToday(dayjs(new Date(inputDate.value)))) {
     isOpen.value = !isOpen.value;
@@ -55,6 +57,20 @@ function getType() {
   }
 
   return ValidationDefaultNoonShouldShow(found);
+}
+
+function displayMessage(mess: string) {
+  switch (mess) {
+    case null: {
+      return "";
+    }
+    case undefined: {
+      return "";
+    }
+    default: {
+      return mess;
+    }
+  }
 }
 </script>
 <template>
@@ -82,7 +98,7 @@ function getType() {
               </button>
             </div>
             <div class="flex flex-col space-x-2 space-y-4 items-start">
-              <label for="name">Name:</label>
+              <label for="name">Name :</label>
               <select
                 class="form-select py-1 rounded w-full"
                 id="name"
@@ -93,9 +109,9 @@ function getType() {
                 </option>
               </select>
               <!-- <input type="name" class="form-input px-4 py-1 rounded" v-model="inputName" /> -->
-              <label for="date">Select Date:</label>
+              <label for="date">Select Date :</label>
               <input type="date" v-model="inputDate" />
-              <label for="shift">Select Shift:</label>
+              <label for="shift">Select Shift :</label>
               <select
                 class="form-select py-1 rounded"
                 id="shift"
@@ -114,7 +130,7 @@ function getType() {
                   {{ TimeInDay.Noon }}
                 </option>
               </select>
-              <label for="block">Select Shift:</label>
+              <label for="block">Select Shift :</label>
               <select
                 class="form-select py-1 rounded"
                 id="block"
@@ -128,6 +144,8 @@ function getType() {
                   {{ e?.nom_type + "-" + e?.nom_sous_type }}
                 </option>
               </select>
+              <p>Message :</p>
+              <textarea v-model="message" class="w-full" />
               <div class="flex flex-row space-x-5">
                 <button
                   @click.stop="toggleModal"

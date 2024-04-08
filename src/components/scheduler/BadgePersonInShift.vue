@@ -14,6 +14,8 @@ const props = defineProps([
   "actualShift",
 ]);
 
+let isHovering = ref(false);
+
 function onDeleteBadget() {
   props.deleteShift(props.shift?.id);
 }
@@ -30,11 +32,32 @@ function generateColor(str: string, isRed: boolean) {
   if (isRed) return "#dc2626";
   return generateColorFromString(str);
 }
+
+function showMessage() {
+  isHovering.value = true;
+}
+
+function hideMessage() {
+  isHovering.value = false;
+}
+function displayMessage(mess: string) {
+  switch (mess) {
+    case null: {
+      return "";
+    }
+    case undefined: {
+      return "";
+    }
+    default: {
+      return mess;
+    }
+  }
+}
 </script>
 
 <template>
   <div
-    class="flex-1 h-auto w-full"
+    class="flex-1 h-auto w-full relative"
     :draggable="!isBeforeToday(dayjs(props.shift?.date))"
     @dragstart="onDragStart($event, props.shift)"
   >
@@ -46,7 +69,11 @@ function generateColor(str: string, isRed: boolean) {
       :userList="props.userList"
       :actualShift="props.actualShift"
     >
-      <div class="flex flex-nowrap justify-center items-center">
+      <div
+        @mouseover="showMessage"
+        @mouseout="hideMessage"
+        class="flex flex-nowrap justify-center items-center"
+      >
         <button
           class="w-full flex flex-row space-x-0.5 justify-center items-center h-auto my-0.5 px-2 rounded"
           :class="{
@@ -75,6 +102,12 @@ function generateColor(str: string, isRed: boolean) {
             </p>
           </button>
         </button>
+        <div
+          v-if="isHovering"
+          class="absolute z-index-50 bg-cyan-100 p-2 top-7 opacity-90 rounded"
+        >
+          {{ displayMessage(props.shift?.message) }}
+        </div>
       </div>
     </UpdateEventModal>
   </div>

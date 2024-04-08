@@ -4,6 +4,7 @@ import { ref } from "vue";
 import type { DataShift } from "@/utils/constants/shift-interface";
 import dayjs from "dayjs";
 import UserService from "~/services/user.service";
+import Message from "~/pages/medecin/message.vue";
 
 const props = defineProps([
   "date",
@@ -21,6 +22,8 @@ let inputSelectTypeSchedule = ref<number>(0);
 let inputStartDate = ref(dayjs().format("YYYY-MM-DD"));
 let inputEndDate = ref(dayjs().format("YYYY-MM-DD"));
 
+let message = ref();
+
 function toggleModal() {
   if (isBeforeToday(props.date)) return;
   isOpen.value = !isOpen.value;
@@ -36,6 +39,7 @@ async function saveData() {
       typeOfSchedule: inputSelectTypeSchedule.value,
       dateStart: inputStartDate.value,
       dateEnd: inputEndDate.value,
+      message: message.value,
     };
     await props.saveShift(newSchedule);
   }
@@ -88,7 +92,7 @@ async function saveData() {
                 </div>
               </div>
 
-              <p>Name</p>
+              <p>Name :</p>
               <select
                 class="form-select py-1 rounded w-full"
                 id="block"
@@ -99,7 +103,7 @@ async function saveData() {
                   {{ e?.nom }}
                 </option>
               </select>
-              <p>Type</p>
+              <p>Type :</p>
               <select
                 class="form-select py-1 rounded w-full"
                 id="block2"
@@ -108,13 +112,10 @@ async function saveData() {
                 <option :value="0">Working day</option>
                 <!-- <option :value="1">Holiday</option> -->
               </select>
-              <!-- <input
-                type="name"
-                class="form-input px-4 py-1 rounded"
-                v-model="inputValue"
-                placeholder="Name ..."
-              /> -->
-              <div class="flex flex-row space-x-5">
+              <p>Message :</p>
+              <textarea type="t" v-model="message" class="w-full" />
+
+              <div class="flex flex-row items-start space-x-5">
                 <button
                   @click="toggleModal"
                   class="text-white px-2 bg-red-500 hover:bg-red-600 rounded text-md"
