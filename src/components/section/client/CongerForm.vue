@@ -3,7 +3,7 @@
     <h2 class="text-center text-xl py-2 font-bold">Prendre un congé</h2>
 
     <!-- Type  -->
-    <q-card-section class="q-pt-none">
+    <q-card-section class="q-pt-none" v-if="me.role == 'admin'">
       <q-select
         v-model="form.idPerson"
         :options="allUsers"
@@ -87,8 +87,8 @@ export default {
   emits: ["update:modelValue"],
   setup() {
     const user = userStore();
-
-    return { user };
+    const me = useCookie("user");
+    return { user, me };
   },
   data() {
     return {
@@ -129,6 +129,9 @@ export default {
     async submited() {
       this.loading = true;
 
+      if (this.me.role != "admin") {
+        this.form.idPerson = this.me?.id;
+      }
       if (this.action === "add") {
         await this.handleNewLeave();
         this.loading = false;
@@ -151,7 +154,7 @@ export default {
     async isSuccess() {
       const { error, msg } = this.message;
       if (!error) {
-        await this.getAllLeave();
+        await this.getAllLeave(this.me.role != 'admin' ? this.me?.id : '');
         this.$toast.success(msg);
         this.form = {
           idPerson: null,

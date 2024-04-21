@@ -10,18 +10,44 @@
       <div class="nav">
         <ul>
           <li v-if="userDash?.role == 'admin'">
-            <nuxt-link to="/dashboard" :class="{ active: $route.path == '/dashboard' }">Liste
-              Demande</nuxt-link>
+            <nuxt-link
+              to="/dashboard"
+              :class="{ active: $route.path == '/dashboard' }"
+              >Liste Demande</nuxt-link
+            >
           </li>
           <li v-if="userDash?.role == 'admin'">
-            <nuxt-link to="/dashboard/gestion-type" :class="{ active: $route.path.includes('gestion-type') }">Gestion
-              Type</nuxt-link>
+            <nuxt-link
+              to="/dashboard/gestion-type"
+              :class="{ active: $route.path.includes('gestion-type') }"
+              >Gestion Type</nuxt-link
+            >
           </li>
-          <li v-if="userDash?.role == 'admin'">
-            <nuxt-link to="/dashboard/conge" :class="{ active: $route.path.includes('gestion-type') }">Gestion du congé</nuxt-link>
+          <li
+            v-if="
+              userDash?.role == 'admin' ||
+              userDash?.role == 'radiologue' ||
+              userDash?.role == 'secretaire'
+            "
+          >
+            <nuxt-link
+              to="/dashboard/conge"
+              :class="{ active: $route.path.includes('conge') }"
+            >
+              {{
+                userDash?.role == "radiologue" || userDash?.role == "secretaire"
+                  ? "Prise de "
+                  : "Gestion du "
+              }}
+              congé</nuxt-link
+            >
           </li>
           <li>
-            <nuxt-link to="/schedule" :class="{ active: $route.path.includes('schedule') }">Planning</nuxt-link>
+            <nuxt-link
+              to="/schedule"
+              :class="{ active: $route.path.includes('schedule') }"
+              >Planning</nuxt-link
+            >
           </li>
           <!-- <li v-if="userDash?.role == 'admin'">
             <nuxt-link
@@ -31,8 +57,11 @@
             >
           </li> -->
           <li v-if="userDash?.role == 'admin'">
-            <nuxt-link to="/dashboard/utilisateur"
-              :class="{ active: $route.path.includes('utilisateur') }">Utilisateurs</nuxt-link>
+            <nuxt-link
+              to="/dashboard/utilisateur"
+              :class="{ active: $route.path.includes('utilisateur') }"
+              >Utilisateurs</nuxt-link
+            >
           </li>
           <!-- <li v-if="userDash?.role == 'radiologue'">
             <nuxt-link
@@ -42,8 +71,11 @@
             >
           </li> -->
           <li v-if="userDash?.role == 'admin'">
-            <nuxt-link to="/dashboard/statistique"
-              :class="{ active: $route.path == '/dashboard/statistique' }">Statistique</nuxt-link>
+            <nuxt-link
+              to="/dashboard/statistique"
+              :class="{ active: $route.path == '/dashboard/statistique' }"
+              >Statistique</nuxt-link
+            >
           </li>
         </ul>
       </div>
@@ -71,10 +103,21 @@
           </q-avatar>
         </div>
         <div class="pg-messagerie__side-new">
-          <q-select v-model="lieu"
-            :options="['Savigny', 'Viry Radio', 'Viry IRM/Scanner', 'Athis', 'Evry']"
-            @update:model-value="changeLocation" emit-value map-options class="q-mb-md"
-            placeholder="Selectionner un utilisateur" />
+          <q-select
+            v-model="lieu"
+            :options="[
+              'Savigny',
+              'Viry Radio',
+              'Viry IRM/Scanner',
+              'Athis',
+              'Evry',
+            ]"
+            @update:model-value="changeLocation"
+            emit-value
+            map-options
+            class="q-mb-md"
+            placeholder="Selectionner un utilisateur"
+          />
         </div>
       </div>
     </div>
@@ -95,11 +138,10 @@ const changeLocation = (v: any) => {
 
 onMounted(() => {
   Notification.requestPermission();
-})
+});
 
 function logout() {
   authStore.logUserOut();
   router.push("/authentification");
 }
-
 </script>
