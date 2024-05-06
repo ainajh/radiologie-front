@@ -10,6 +10,7 @@ const props = defineProps([
   "label",
   "saveShift",
   "updateShift",
+  "reload",
   "shifts",
   "block",
   "deleteShift",
@@ -74,6 +75,7 @@ function onDrop(event: any) {
     <div v-for="(shift, i) in filteredShifts()" :key="shift?.id">
       <BadgePersonInShift
         :userList="props.userList"
+        :reload="props.reload"
         :name="shift?.nom"
         :shift="shift"
         :updateShift="props.updateShift"

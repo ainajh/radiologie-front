@@ -81,5 +81,29 @@ export const useLeaveStore = defineStore("leaveStore", {
         };
       }
     },
+    async toogleValidationPlanning(id: number, validate: boolean) {
+      const { $api } = useNuxtApp();
+      const token = useCookie("token");
+      try {
+        const response = await $api?.put(
+          `schedule/toogleValidationPlanning/${id}/?validate=${validate}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token.value}`,
+            },
+          }
+        );
+
+        this.message = { error: false, msg: response?.data?.message };
+        return response?.data?.data;
+      } catch (error: any) {
+        const err = error?.response?.data?.message;
+        this.message = {
+          error: true,
+          msg: err,
+        };
+      }
+    },
   },
 });

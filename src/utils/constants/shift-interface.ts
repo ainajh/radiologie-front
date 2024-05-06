@@ -14,4 +14,5 @@ export interface DataShift {
   dateStart?: string;
   dateEnd?: string;
   message?: string | null;
+  is_valid?: number;
 }

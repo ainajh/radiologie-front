@@ -4,11 +4,13 @@ import UpdateEventModal from "./UpdateEventModal.vue";
 import isBeforeToday from "@/utils/functions/is-before-today";
 import generateColorFromString from "@/utils/functions/generate-color-from-string";
 import type { DataShift } from "~/utils/constants/shift-interface";
+const userDash: any = useCookie("user").value;
 const props = defineProps([
   "shift",
   "updateShift",
   "deleteShift",
   "typeTab",
+  "reload",
   "block",
   "userList",
   "actualShift",
@@ -57,13 +59,17 @@ function displayMessage(mess: string) {
 
 <template>
   <div
-    class="flex-1 h-auto w-full relative"
-    :draggable="!isBeforeToday(dayjs(props.shift?.date))"
+    class="h-auto w-full relative"
+    v-if="props.shift.is_valid || userDash?.role == 'admin'"
+    :draggable="
+      !props.shift.is_valid && !isBeforeToday(dayjs(props.shift?.date))
+    "
     @dragstart="onDragStart($event, props.shift)"
   >
     <UpdateEventModal
       :shift="props.shift"
       :updateShift="props.updateShift"
+      :reload="props.reload"
       :typeTab="props.typeTab"
       :block="props.block"
       :userList="props.userList"
@@ -87,11 +93,24 @@ function displayMessage(mess: string) {
             ),
           }"
         >
-          <p class="text-xs text-start flex-1 py-0.5 w-full rounded text-white">
+          <p
+            class="text-xs text-start flex-1 py-0.5  w-full rounded text-white relative"
+          >
             {{ props.shift.nom }}
+            <span
+              v-if="!props.shift.is_valid && userDash?.role == 'admin'"
+              class="absolute top-1 h-[12px] w-[12px] bg-red-500 rounded"
+              :class="props.shift.message ? 'right-5' : 'right-1'"
+            ></span>
+            <span
+              v-if="props.shift.message"
+              class="absolute right-1 top-1 h-[12px] w-[12px] rounded"
+            >
+              <i class="fa-solid fa-comment"></i>
+            </span>
           </p>
           <button
-            v-if="!isBeforeToday(dayjs(props.shift?.date))"
+            v-if="!isBeforeToday(dayjs(props.shift?.date)) && userDash?.role == 'admin'"
             class="bg-pink-100 flex flex-nowrap justify-center items-center max-h-3 min-w-3 rounded"
             @click.stop="onDeleteBadget"
           >
@@ -103,8 +122,9 @@ function displayMessage(mess: string) {
           </button>
         </button>
         <div
-          v-if="isHovering"
-          class="absolute z-index-50 bg-cyan-100 p-2 top-7 opacity-90 rounded"
+          v-if="isHovering && props.shift.message"
+          class="absolute z-index-50 bg-black p-1 top-6 opacity-90 rounded text-white"
+          style="z-index: 2;"
         >
           {{ displayMessage(props.shift?.message) }}
         </div>

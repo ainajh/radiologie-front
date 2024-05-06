@@ -19,6 +19,7 @@ import ValidationDefaultNoonShouldShow from "~/utils/functions/validation-noon-s
 import { useToast } from "vue-toastification";
 import generateColorFromString from "~/utils/functions/generate-color-from-string";
 const toast = useToast();
+const userDash: any = useCookie("user").value;
 
 let currentMonth = ref(getMonth());
 let weekIndex = ref(0);
@@ -27,7 +28,7 @@ let data = ref<any[]>();
 let dataHolidays = ref<any[]>();
 let copyShcedules = ref<any[]>();
 const userList = await UserService.getAll();
-const typeTab = await TypeService.getAll();
+const typeTab = await TypeService.getAllPlaces();
 let isOpen = ref(false);
 let isCopy = ref(false);
 let inputName = ref("");
@@ -104,7 +105,7 @@ async function saveShift(dataShift: DataShift) {
   try {
     if (dataShift === undefined) return;
     await ScheduleService.create(dataShift);
-    data.value = await ScheduleService.getAll();
+    refreshMe();
   } catch (err) {
     console.log(err);
   }
@@ -114,7 +115,7 @@ async function updateShift(updatedShift: DataShift) {
   try {
     if (updatedShift === undefined) return;
     await ScheduleService.update(updatedShift);
-    data.value = await ScheduleService.getAll();
+    refreshMe();
   } catch (err) {
     console.log(err);
   }
@@ -124,7 +125,7 @@ async function deleteShift(id: number) {
   try {
     if (id === undefined) return;
     await ScheduleService.deleteOne(id);
-    data.value = await ScheduleService.getAll();
+    refreshMe();
   } catch (err) {
     console.log(err);
   }
@@ -198,6 +199,86 @@ async function deleteHoliday(id: number) {
   await leaveService.deleteOne(id);
   fetchHolidayList();
 }
+
+import { useCommentScheduleStore } from "@/stores/commentSchedule";
+import { useLeaveStore } from "@/stores/leave";
+const commentStore = useCommentScheduleStore();
+const leaveStore = useLeaveStore();
+
+const allScheduleThisWeek = ref([]);
+const isContainValidate = ref(false);
+function formatDate(dateString: string) {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  let month = (date.getMonth() + 1).toString().padStart(2, "0");
+  let day = date.getDate().toString().padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+const allCommentInThisWeek = async (ancred = false) => {
+  const weekList = currentMonth.value[weekIndex.value].map((item) =>
+    formatDate(item)
+  );
+  await commentStore.getAllCommentInThisWeek(weekList);
+  if (ancred) return;
+  setTimeout(() => {
+    const scrollTargetElement = document.getElementById("scroll-target");
+    if (scrollTargetElement) {
+      // Faire défiler la liste de commentaires jusqu'à l'élément cible
+      scrollTargetElement.scrollIntoView({ behavior: "smooth" });
+    } else {
+      console.error('Element with id "scroll-target" not found in the DOM.');
+    }
+  }, 500);
+};
+const getAllSheduleThisWeek = async () => {
+  const weekList = currentMonth.value[weekIndex.value].map((item) =>
+    formatDate(item)
+  );
+  await commentStore.getAllSheduleThisWeek(weekList);
+  allScheduleThisWeek.value = commentStore.allScheduleThisWeek;
+  isContainValidate.value = commentStore.allScheduleThisWeek?.some(
+    (item) => item.is_valid === 1
+  );
+};
+const toggleAllPlanning = async () => {
+  await getAllSheduleThisWeek();
+  const allSched = await commentStore.allScheduleThisWeek?.map(
+    (item) => item.id
+  );
+  const isValidExists = await commentStore.allScheduleThisWeek?.some(
+    (item) => item.is_valid === 1
+  );
+
+  for (let sh of allSched) {
+    await leaveStore.toogleValidationPlanning(sh, !isValidExists);
+  }
+  refreshMe();
+};
+
+const refreshMe = async () => {
+  getAllSheduleThisWeek();
+  data.value = await ScheduleService.getAll();
+};
+
+watch(
+  weekIndex,
+  (newValue, oldValue) => {
+    allCommentInThisWeek(true);
+    getAllSheduleThisWeek();
+    refreshMe();
+  },
+  { immediate: true }
+);
+watch(
+  currentMonth,
+  (newValue, oldValue) => {
+    allCommentInThisWeek(true);
+    getAllSheduleThisWeek();
+    refreshMe();
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -272,6 +353,7 @@ async function deleteHoliday(id: number) {
       >
         annuler
       </button>
+
       <div class="flex-1"></div>
       <div
         class="w-30 max-h-5 flex items-center justify-center bg-cyan-800 px-5 rounded"
@@ -284,6 +366,14 @@ async function deleteHoliday(id: number) {
       >
         <p class="text-center text-white">en congé / duplication</p>
       </div>
+      <button
+        class="flex justify-center items-center h-auto rounded text-white px-2 mx-2"
+        :class="`bg-${isContainValidate ? 'red-500' : 'primary'}`"
+        @click="toggleAllPlanning"
+        v-if="userDash?.role == 'admin'"
+      >
+        {{ isContainValidate ? "Dévalider" : "Valider" }} tous
+      </button>
       <div class="w-5"></div>
       <div
         class="w-30 max-h-5 flex items-center justify-center bg-cyan-600 px-5 rounded"
@@ -309,8 +399,8 @@ async function deleteHoliday(id: number) {
       :key="i"
     >
       <div class="w-20 flex items-center justify-center">
-        <p class="text-center w-20 overflow-elipsis">
-          {{ e.nom_type + "-" + e.nom_sous_type }}
+        <p class="text-center w-full overflow-elipsis ">
+          {{ e.nom_place }}
         </p>
       </div>
       <div class="w-full flex flex-col">
@@ -324,6 +414,7 @@ async function deleteHoliday(id: number) {
             :week="currentMonth[weekIndex]"
             :saveShift="saveShift"
             :updateShift="updateShift"
+            :reload="refreshMe"
             :shifts="data"
             :block="e"
             :deleteShift="deleteShift"
@@ -332,12 +423,7 @@ async function deleteHoliday(id: number) {
             :userList="userList"
           />
         </div>
-        <div
-          class="flex flex-row flex-nowrap"
-          v-if="
-            ValidationDefaultNoonShouldShow(e.nom_type + '-' + e.nom_sous_type)
-          "
-        >
+        <div class="flex flex-row flex-nowrap" v-if="e?.has_noon">
           <div
             class="w-full flex flex-nowrap items-center justify-center bg-cyan-100"
           >
@@ -347,6 +433,7 @@ async function deleteHoliday(id: number) {
             :week="currentMonth[weekIndex]"
             :saveShift="saveShift"
             :updateShift="updateShift"
+            :reload="refreshMe"
             :shifts="data"
             :block="e"
             :deleteShift="deleteShift"
@@ -367,6 +454,7 @@ async function deleteHoliday(id: number) {
             :week="currentMonth[weekIndex]"
             :saveShift="saveShift"
             :updateShift="updateShift"
+            :reload="refreshMe"
             :shifts="data"
             :block="e"
             :deleteShift="deleteShift"
@@ -378,195 +466,202 @@ async function deleteHoliday(id: number) {
       </div>
     </div>
   </div>
-  <div class="my-5">
-    <div class="flex flex-row items-center">
-      <p class="text-xl">Leave list :</p>
-      <!-- <div class="flex-1"></div> -->
-      <!-- <div class="w-5"></div> -->
-      <!-- <div
-        class="w-30 max-h-5 flex items-center justify-center bg-cyan-800 px-5 rounded"
-      >
-        <p class="text-center text-white">Working day</p>
-      </div> -->
-      <div class="w-5"></div>
-
-      <p class="mx-5 text-lg">WEEK : {{ weekIndex }}</p>
-      <button
-        @click="increment"
-        class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
-      >
-        &lt;
-      </button>
-      <div class="mx-2">|</div>
-      <button
-        @click="decrement"
-        class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
-      >
-        >
-      </button>
-      <button
-        @click="thisMonth"
-        class="mx-5 flex justify-center items-center h-auto px-2 rounded bg-cyan-600 text-white"
-      >
-        Today
-      </button>
-      <p class="mx-5">||</p>
-      <p class="mx-5 text-lg">MONTH</p>
-      <button
-        @click="
-          (e: MouseEvent) => {
-            previousMonth()
-            return e
-          }
-        "
-        class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
-      >
-        &lt;
-      </button>
-      <div class="mx-2">|</div>
-      <button
-        @click="
-          (e: MouseEvent) => {
-            nextMonth() 
-            return e
-          }
-        "
-        class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
-      >
-        >
-      </button>
-      <p class="mx-5 w-48 text-lg">{{ actualDate() }}</p>
-      <div
-        class="w-30 max-h-5 flex items-center justify-center bg-cyan-600 px-5 rounded"
-      >
-        <button class="w-full" @click="toggleModalCreateHotiday">
-          <p class="text-center text-white text-sm">+ add holiday</p>
-        </button>
-      </div>
-    </div>
-    <div
-      class="flex flex-column w-full mx-10 my-3"
-      v-for="(holiday, i) in dataHolidays"
-      :key="holiday.id"
-    >
-      <UpdateLeaveModal
-        :dataLeave="holiday"
-        :fetchHolidayList="fetchHolidayList"
-      >
-        <div class="flex flex-nowrap justify-center items-center">
-          <div
-            class="w-full flex flex-row space-x-0.5 justify-center items-center h-auto my-0.5 px-2 bg-red-500 rounded"
-            :style="{
-              backgroundColor: generateColorFromString(holiday.nom),
-            }"
+  <div class="flex gap-5">
+    <div>
+      <div class="my-5">
+        <div class="flex flex-row items-center">
+          <p class="text-xl">Leave list :</p>
+          <!-- <div class="flex-1"></div> -->
+          <!-- <div class="w-5"></div> -->
+          <!-- <div
+            class="w-30 max-h-5 flex items-center justify-center bg-cyan-800 px-5 rounded"
           >
-            <p
-              class="text-sm text-start flex-1 py-0.5 w-full rounded text-white px-2"
+            <p class="text-center text-white">Working day</p>
+          </div> -->
+          <div class="w-5"></div>
+
+          <p class="mx-5 text-lg">WEEK : {{ weekIndex }}</p>
+          <button
+            @click="increment"
+            class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+          >
+            &lt;
+          </button>
+          <div class="mx-2">|</div>
+          <button
+            @click="decrement"
+            class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+          >
             >
-              {{
-                holiday.nom +
-                "  " +
-                dayjs(holiday.dateStart).format("DD-MMMM-YYYY") +
-                " - " +
-                dayjs(holiday.dateEnd).format("DD-MMMM-YYYY")
-              }}
-            </p>
-            <button
-              v-if="!isBeforeToday(dayjs(holiday.dateStart))"
-              class="bg-pink-100 flex flex-nowrap justify-center items-center max-h-3 min-w-3 rounded"
-              @click.stop="() => deleteHoliday(parseInt(holiday.id))"
+          </button>
+          <button
+            @click="thisMonth"
+            class="mx-5 flex justify-center items-center h-auto px-2 rounded bg-cyan-600 text-white"
+          >
+            Today
+          </button>
+          <p class="mx-5">||</p>
+          <p class="mx-5 text-lg">MONTH</p>
+          <button
+            @click="
+              (e: MouseEvent) => {
+                previousMonth()
+                return e
+              }
+            "
+            class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+          >
+            &lt;
+          </button>
+          <div class="mx-2">|</div>
+          <button
+            @click="
+              (e: MouseEvent) => {
+                nextMonth() 
+                return e
+              }
+            "
+            class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+          >
             >
-              <p
-                class="items-center flex justify-center text-cyan-800 font-bold text-sm"
-              >
-                &times;
-              </p>
+          </button>
+          <p class="mx-5 w-48 text-lg">{{ actualDate() }}</p>
+          <div
+            class="w-30 max-h-5 flex items-center justify-center bg-cyan-600 px-5 rounded"
+          >
+            <button class="w-full" @click="toggleModalCreateHotiday">
+              <p class="text-center text-white text-sm">+ add holiday</p>
             </button>
           </div>
         </div>
-      </UpdateLeaveModal>
+        <div
+          class="flex flex-column w-full mx-10 my-3"
+          v-for="(holiday, i) in dataHolidays"
+          :key="holiday.id"
+        >
+          <UpdateLeaveModal
+            :dataLeave="holiday"
+            :fetchHolidayList="fetchHolidayList"
+          >
+            <div class="flex flex-nowrap justify-center items-center">
+              <div
+                class="w-full flex flex-row space-x-0.5 justify-center items-center h-auto my-0.5 px-2 bg-red-500 rounded"
+                :style="{
+                  backgroundColor: generateColorFromString(holiday.nom),
+                }"
+              >
+                <p
+                  class="text-sm text-start flex-1 py-0.5 w-full rounded text-white px-2"
+                >
+                  {{
+                    holiday.nom +
+                    "  " +
+                    dayjs(holiday.dateStart).format("DD-MMMM-YYYY") +
+                    " - " +
+                    dayjs(holiday.dateEnd).format("DD-MMMM-YYYY")
+                  }}
+                </p>
+                <button
+                  v-if="!isBeforeToday(dayjs(holiday.dateStart))"
+                  class="bg-pink-100 flex flex-nowrap justify-center items-center max-h-3 min-w-3 rounded"
+                  @click.stop="() => deleteHoliday(parseInt(holiday.id))"
+                >
+                  <p
+                    class="items-center flex justify-center text-cyan-800 font-bold text-sm"
+                  >
+                    &times;
+                  </p>
+                </button>
+              </div>
+            </div>
+          </UpdateLeaveModal>
+        </div>
+      </div>
+      <button
+        v-if="isOpen"
+        class="fixed inset-0 flex items-center justify-center"
+        @click="toggleModalCreateHotiday"
+      >
+        <transition name="modal-fade">
+          <div
+            v-if="isOpen"
+            class="fixed inset-0 flex items-center justify-center bg-opacity-50"
+            style="background: rgba(black) !important"
+          >
+            <button @click.stop="" class="">
+              <div class="bg-white p-8 rounded-lg shadow-lg">
+                <div class="flex justify-end">
+                  <button
+                    @click="toggleModalCreateHotiday"
+                    class="text-gray-500 hover:text-gray-700 font-bold text-2xl"
+                  >
+                    &times;
+                  </button>
+                </div>
+                <div
+                  class="flex flex-col space-x-2 space-y-4 items-start w-[500px]"
+                >
+                  <div class="flex flex-row space-x-2">
+                    <div class="flex flex-row space-x-1">
+                      <label for="date">Start Date:</label>
+                      <input type="date" v-model="inputStartDate" />
+                    </div>
+                    <div class="flex flex-row space-x-1">
+                      <label for="date">End Date:</label>
+                      <input type="date" v-model="inputEndDate" />
+                    </div>
+                  </div>
+
+                  <p>Name</p>
+                  <select
+                    class="form-select py-1 rounded w-full"
+                    id="block"
+                    v-model="inputName"
+                    placeholder="name"
+                  >
+                    <option v-for="(e, i) in userList" :key="i" :value="e?.id">
+                      {{ e?.nom }}
+                    </option>
+                  </select>
+                  <p>Type</p>
+                  <select
+                    class="form-select py-1 rounded w-full"
+                    id="block2"
+                    v-model="typeOfHoliday"
+                  >
+                    <option :value="'Holiday'">Holiday</option>
+                  </select>
+                  <!-- <input
+                    type="name"
+                    class="form-input px-4 py-1 rounded"
+                    v-model="inputValue"
+                    placeholder="Name ..."
+                  /> -->
+                  <div class="flex flex-row space-x-5">
+                    <button
+                      @click="toggleModalCreateHotiday"
+                      class="text-black px-2 bg-pink-300 hover:bg-pink-500 rounded text-md"
+                    >
+                      <p>Cancel</p>
+                    </button>
+                    <button
+                      @click="createHoliday"
+                      class="text-black px-2 bg-cyan-300 hover:bg-cyan-500 rounded text-md"
+                    >
+                      <p>Save</p>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </button>
+          </div>
+        </transition>
+      </button>
+    </div>
+    <div class="border-2 my-5 w-[40%] min-h-[100px]">
+      <SchedulerCommentaire :weekNow="currentMonth[weekIndex]" />
     </div>
   </div>
-  <div class="h-56"></div>
-  <button
-    v-if="isOpen"
-    class="fixed inset-0 flex items-center justify-center"
-    @click="toggleModalCreateHotiday"
-  >
-    <transition name="modal-fade">
-      <div
-        v-if="isOpen"
-        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-      >
-        <button @click.stop="" class="">
-          <div class="bg-white p-8 rounded-lg shadow-lg">
-            <div class="flex justify-end">
-              <button
-                @click="toggleModalCreateHotiday"
-                class="text-gray-500 hover:text-gray-700 font-bold text-2xl"
-              >
-                &times;
-              </button>
-            </div>
-            <div
-              class="flex flex-col space-x-2 space-y-4 items-start w-[500px]"
-            >
-              <div class="flex flex-row space-x-2">
-                <div class="flex flex-row space-x-1">
-                  <label for="date">Start Date:</label>
-                  <input type="date" v-model="inputStartDate" />
-                </div>
-                <div class="flex flex-row space-x-1">
-                  <label for="date">End Date:</label>
-                  <input type="date" v-model="inputEndDate" />
-                </div>
-              </div>
-
-              <p>Name</p>
-              <select
-                class="form-select py-1 rounded w-full"
-                id="block"
-                v-model="inputName"
-                placeholder="name"
-              >
-                <option v-for="(e, i) in userList" :key="i" :value="e?.id">
-                  {{ e?.nom }}
-                </option>
-              </select>
-              <p>Type</p>
-              <select
-                class="form-select py-1 rounded w-full"
-                id="block2"
-                v-model="typeOfHoliday"
-              >
-                <option :value="'Holiday'">Holiday</option>
-              </select>
-              <!-- <input
-                type="name"
-                class="form-input px-4 py-1 rounded"
-                v-model="inputValue"
-                placeholder="Name ..."
-              /> -->
-              <div class="flex flex-row space-x-5">
-                <button
-                  @click="toggleModalCreateHotiday"
-                  class="text-black px-2 bg-pink-300 hover:bg-pink-500 rounded text-md"
-                >
-                  <p>Cancel</p>
-                </button>
-                <button
-                  @click="createHoliday"
-                  class="text-black px-2 bg-cyan-300 hover:bg-cyan-500 rounded text-md"
-                >
-                  <p>Save</p>
-                </button>
-              </div>
-            </div>
-          </div>
-        </button>
-      </div>
-    </transition>
-  </button>
 </template>
 
 <style scoped></style>

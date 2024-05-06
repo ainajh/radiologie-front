@@ -5,7 +5,7 @@ import type { DataShift } from "@/utils/constants/shift-interface";
 import dayjs from "dayjs";
 import UserService from "~/services/user.service";
 import Message from "~/pages/medecin/message.vue";
-
+const userDash: any = useCookie("user").value;
 const props = defineProps([
   "date",
   "saveShift",
@@ -26,7 +26,7 @@ let message = ref();
 
 function toggleModal() {
   if (isBeforeToday(props.date)) return;
-  isOpen.value = !isOpen.value;
+  if (userDash?.role == "admin") isOpen.value = !isOpen.value;
 }
 
 async function saveData() {
@@ -49,9 +49,7 @@ async function saveData() {
 }
 </script>
 <template>
-  <button class="w-full" @click="toggleModal">
-    <slot></slot>
-  </button>
+  <button class="w-full" @click="toggleModal"><slot></slot></button>
   <button
     v-if="isOpen"
     class="fixed inset-0 flex items-center justify-center"
@@ -60,7 +58,8 @@ async function saveData() {
     <transition name="modal-fade">
       <div
         v-if="isOpen"
-        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+        class="fixed inset-0 flex items-center justify-center bg-opacity-50"
+        style="backdrop-filter: blur(5px)"
       >
         <button @click.stop="" class="">
           <div class="bg-white p-8 rounded-lg shadow-lg">
@@ -76,23 +75,23 @@ async function saveData() {
               class="flex flex-col space-x-2 space-y-4 items-start w-[500px]"
             >
               <p class="" v-if="inputSelectTypeSchedule === 0">
-                {{ props.date.format("DD-MM-YYYY") }}
+                {{ props.date.format("DD MMMM YYYY") }}
               </p>
               <div
                 class="flex flex-row space-x-2"
                 v-if="inputSelectTypeSchedule === 1"
               >
                 <div class="flex flex-row space-x-1">
-                  <label for="date">Start Date:</label>
+                  <label for="date">Date de debut:</label>
                   <input type="date" v-model="inputStartDate" />
                 </div>
                 <div class="flex flex-row space-x-1">
-                  <label for="date">End Date:</label>
+                  <label for="date">Date du fin:</label>
                   <input type="date" v-model="inputEndDate" />
                 </div>
               </div>
 
-              <p>Name :</p>
+              <p>Nom du personnel :</p>
               <select
                 class="form-select py-1 rounded w-full"
                 id="block"
@@ -112,21 +111,23 @@ async function saveData() {
                 <option :value="0">Working day</option>
                 <!-- <option :value="1">Holiday</option> -->
               </select>
-              <p>Message :</p>
-              <textarea type="t" v-model="message" class="w-full" />
+              <div v-if="false">
+                <p>Message :</p>
+                <textarea type="t" v-model="message" class="w-full" />
+              </div>
 
               <div class="flex flex-row items-start space-x-5">
                 <button
                   @click="toggleModal"
                   class="text-white px-2 bg-red-500 hover:bg-red-600 rounded text-md"
                 >
-                  <p>Cancel</p>
+                  <p>Fermer</p>
                 </button>
                 <button
                   @click="saveData"
                   class="text-white px-2 bg-cyan-600 hover:bg-cyan-800 rounded text-md"
                 >
-                  <p>Save</p>
+                  <p>Sauvegarder</p>
                 </button>
               </div>
             </div>

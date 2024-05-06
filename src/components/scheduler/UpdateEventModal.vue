@@ -5,12 +5,16 @@ import { ref } from "vue";
 import dayjs from "dayjs";
 import isBeforeToday from "@/utils/functions/is-before-today";
 import UserService from "~/services/user.service";
+import { useLeaveStore } from "@/stores/leave";
 
 import ValidationDefaultNoonShouldShow from "~/utils/functions/validation-noon-should-show";
+const userDash: any = useCookie("user").value;
+const leaveStore = useLeaveStore();
 
 const props = defineProps([
   "shift",
   "updateShift",
+  "reload",
   "typeTab",
   "block",
   "userList",
@@ -52,7 +56,7 @@ function getType() {
   let found = "";
   for (const e of props?.typeTab) {
     if (inputBlock.value === e.id) {
-      found = e?.nom_type + "-" + e?.nom_sous_type;
+      found = e?.nom_place;
     }
   }
 
@@ -72,6 +76,23 @@ function displayMessage(mess: string) {
     }
   }
 }
+const toogleValidatePlanning = (id: number, validate: boolean) => {
+  console.log(validate);
+  leaveStore.toogleValidationPlanning(id, validate);
+  const updatedShift: DataShift = {
+    id: props.shift?.id,
+    nom: inputName.value,
+    date: dayjs(new Date(inputDate.value)).format("YYYY-MM-DD"),
+    shift: inputShift.value,
+    idType: inputBlock.value,
+    idPerson: inputPerson.value,
+    message: message.value,
+    is_valid: validate ? 1 : 0,
+  };
+  props.updateShift(updatedShift);
+  isOpen.value = !isOpen.value;
+  props.reload();
+};
 </script>
 <template>
   <button class="w-full" @click.stop="toggleModal">
@@ -85,7 +106,8 @@ function displayMessage(mess: string) {
     <transition name="modal-fade">
       <div
         v-if="isOpen"
-        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-5"
+        class="fixed inset-0 flex items-center justify-center bg-opacity-50"
+        style="backdrop-filter: blur(2px)"
       >
         <button @click.stop="" class="">
           <div class="bg-white p-8 rounded-lg shadow-lg w-[500px]">
@@ -148,16 +170,31 @@ function displayMessage(mess: string) {
               <textarea v-model="message" class="w-full" />
               <div class="flex flex-row space-x-5">
                 <button
+                  v-if="!props.shift.is_valid"
                   @click.stop="toggleModal"
                   class="text-white px-2 bg-red-500 hover:bg-red-600 rounded text-md"
                 >
                   <p>Cancel</p>
                 </button>
                 <button
+                  v-if="!props.shift.is_valid"
                   @click.stop="updateShift"
                   class="text-white px-2 bg-cyan-600 hover:bg-cyan-800 rounded text-md"
                 >
                   <p>Update</p>
+                </button>
+                <button
+                  v-if="userDash?.role == 'admin'"
+                  @click="
+                    toogleValidatePlanning(
+                      props.shift.id,
+                      !props.shift.is_valid
+                    )
+                  "
+                  class="text-white px-2 hover:bg-cyan-800 rounded text-md"
+                  :class="props.shift.is_valid ? 'bg-red-600' : 'bg-blue-600'"
+                >
+                  {{ props.shift.is_valid ? "Dévalidé" : "Validé" }}
                 </button>
               </div>
             </div>

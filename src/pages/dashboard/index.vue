@@ -1,12 +1,24 @@
 <template>
-  <section-admin-container pageClass="dash-demande" title="Gestion des demandes">
+  <section-admin-container
+    pageClass="dash-demande"
+    title="Gestion des demandes"
+  >
     <div class="bg-white shadow-sm rounded-lg">
       <div class="dash-demande__filter">
         <div class="pl-[50px]">
           <q-btn-group>
-            <q-btn label="Tous" :class="type == '' ? 'active' : ''" @click="toggleType('')" />
-            <q-btn v-for="(tp, i) in new Set(allTypes.map((a) => a.nom_type))" :key="i" :label="tp"
-              :class="type == tp ? 'active' : ''" @click="toggleType(tp)">
+            <q-btn
+              label="Tous"
+              :class="type == '' ? 'active' : ''"
+              @click="toggleType('')"
+            />
+            <q-btn
+              v-for="(tp, i) in new Set(allTypes.map((a) => a.nom_type))"
+              :key="i"
+              :label="tp"
+              :class="type == tp ? 'active' : ''"
+              @click="toggleType(tp)"
+            >
               <q-badge :label="badgeType(tp)" floating color="red" />
             </q-btn>
           </q-btn-group>
@@ -17,36 +29,73 @@
           <q-card style="min-width: 350px">
             <q-card-section class="flex flex-col gap-2">
               <div v-for="c in current_d.comments" :key="c.id">
-                <div class="bg-[#ccc] rounded p-2 relative">
+                <div class="bg-[#ccc] rounded p-2 relative" v-if="c.content">
                   <div class="content">
                     {{ c.content }}
                   </div>
-                  <q-icon name="cancel" class="absolute top-[-5px] right-[-5px] text-black cursor-pointer" size="17px"
-                    @click="deleteComs(c.id)" />
+                  <q-icon
+                    v-if="c.content"
+                    name="cancel"
+                    class="absolute top-[-5px] right-[-5px] text-black cursor-pointer"
+                    size="17px"
+                    @click="deleteComs(c.id)"
+                  />
                 </div>
               </div>
             </q-card-section>
             <q-card-section class="q-pt-none">
-              <q-input dense v-model="coms" label="Votre commentaire:" autofocus
-                @keyup.enter="addCommentaire(current_d.id_demande)" />
+              <q-input
+                dense
+                v-model="coms"
+                label="Votre commentaire:"
+                autofocus
+                @keyup.enter="addCommentaire(current_d.id_demande)"
+              />
             </q-card-section>
             <q-card-actions align="right" class="text-primary">
               <q-btn flat label="Annuler" v-close-popup />
-              <q-btn flat label="Envoyer" v-close-popup @click="addCommentaire(current_d.id_demande)" />
+              <q-btn
+                flat
+                label="Envoyer"
+                v-close-popup
+                @click="addCommentaire(current_d.id_demande)"
+              />
             </q-card-actions>
           </q-card>
         </q-dialog>
         <q-dialog v-model="showModalDetail" persistent ref="myModal">
           <q-card style="min-width: 550px">
-            <section-admin-demande-form-detail v-model="showModalDetail" @refresh="showDemandeByStatus('attente')"
-              :datas="selectedRows"></section-admin-demande-form-detail>
+            <section-admin-demande-form-detail
+              v-model="showModalDetail"
+              @refresh="showDemandeByStatus('attente')"
+              :datas="selectedRows"
+            ></section-admin-demande-form-detail>
           </q-card>
         </q-dialog>
-        <q-table class="w-full" flat :rows="filteredDemandes.filter(d => type !== '' ? d.nom_type === type : d)"
-          :columns="filtertype === null ? columnsDefault : columns" :sort-method="customSort" bordered row-key="name"
-          :filter="filter" :hide-pagination="true" :rows-per-page-options="[0]">
+        <q-table
+          class="w-full"
+          flat
+          :rows="
+            filteredDemandes.filter((d) =>
+              type !== '' ? d.nom_type === type : d
+            )
+          "
+          :columns="filtertype === null ? columnsDefault : columns"
+          :sort-method="customSort"
+          bordered
+          row-key="name"
+          :filter="filter"
+          :hide-pagination="true"
+          :rows-per-page-options="[0]"
+        >
           <template v-slot:top-left>
-            <q-input dense outlined debounce="300" v-model="filter" placeholder="Search">
+            <q-input
+              dense
+              outlined
+              debounce="300"
+              v-model="filter"
+              placeholder="Search"
+            >
               <template v-slot:append>
                 <q-icon name="search" />
               </template>
@@ -54,10 +103,19 @@
           </template>
           <template v-slot:top-right>
             <div class="flex gap-2">
-              <q-btn :color="filtertype == null ? 'secondary' : 'primary'" :label="`Voir les listes des demandes ${filtertype == null ? 'traités' : 'en attente'
-                }`" @click="showDemandeByStatus('accepte')" />
+              <q-btn
+                :color="filtertype == null ? 'secondary' : 'primary'"
+                :label="`Voir les listes des demandes ${
+                  filtertype == null ? 'traités' : 'en attente'
+                }`"
+                @click="showDemandeByStatus('accepte')"
+              />
 
-              <q-btn color="secondary" label="Ajouter" to="/dashboard/ajout-demande" />
+              <q-btn
+                color="secondary"
+                label="Ajouter"
+                to="/dashboard/ajout-demande"
+              />
             </div>
           </template>
           <template v-slot:body-cell-rdv="props">
@@ -66,20 +124,29 @@
                 <div v-if="props.value">
                   {{ formatDateToFrench(props.value) }}
                 </div>
-                <q-badge v-else class="bg-red w-full p-2 justify-center" label="Urgent" />
+                <q-badge
+                  v-else
+                  class="bg-red w-full p-2 justify-center"
+                  label="Urgent"
+                />
               </div>
             </q-td>
           </template>
           <template v-slot:body-cell-nom_medecin="props">
             <q-td :props="props">
-              <div class="font-bold" :style="{ 'color': props.row.role_user !== 'medecin' ? '#0ac1c4' : 'red' }"
-                :class="props.row.ordonnance ? 'border-doctor' : ''">
+              <div
+                class="font-bold"
+                :style="{
+                  color: props.row.role_user !== 'medecin' ? '#0ac1c4' : 'red',
+                }"
+                :class="props.row.ordonnance ? 'border-doctor' : ''"
+              >
                 {{
                   props.value
-                  ? props.row.role_user == "secretaire"
-                    ? props.value
-                    : "Dr " + props.value
-                  : "---"
+                    ? props.row.role_user == "secretaire"
+                      ? props.value
+                      : "Dr " + props.value
+                    : "---"
                 }}
               </div>
             </q-td>
@@ -87,19 +154,48 @@
           <template v-slot:body-cell-comments="props">
             <q-td :props="props">
               <div class="w-full">
-                <q-btn square dense icon="comment" class="mr-3"
-                  :style="{ 'background': props.row.comments.length !== 0 ? 'var(--secondary)' : 'white', 'color': props.row.comments.length !== 0 ? 'white' : 'black' }"
-                  @click="() => {
-                    openComs = true;
-                    current_d = {
-                      id_demande: props.row.id,
-                      comments: props.row.comments
-                    };
-                  }">
+                <q-btn
+                  square
+                  dense
+                  icon="comment"
+                  class="mr-3"
+                  :style="{
+                    background:
+                      convertToJson(props.row.comments).length !== 0 &&
+                      convertToJson(props.row.comments)[0].content != null
+                        ? 'var(--secondary)'
+                        : 'white',
+                    color:
+                      convertToJson(props.row.comments).length !== 0 &&
+                      convertToJson(props.row.comments)[0].content != null
+                        ? 'white'
+                        : 'black',
+                  }"
+                  @click="
+                    () => {
+                      openComs = true;
+                      current_d = {
+                        id_demande: props.row.id,
+                        comments: convertToJson(props.row.comments),
+                      };
+                    }
+                  "
+                >
                   <q-tooltip
-                    v-for="(comment, index) in props.row.comments.sort((a, b) => new Date(a.created).getTime() - new Date(b.created).getTime())"
-                    :key="comment.id" :offset="[0, 40 * index + 10]">
-                    <div class="text-body2">{{ comment.content }}</div>
+                    v-if="convertToJson(props.row.comments)[0].content != null"
+                    v-for="(comment, index) in convertToJson(
+                      props.row.comments
+                    ).sort(
+                      (a, b) =>
+                        new Date(a.created).getTime() -
+                        new Date(b.created).getTime()
+                    )"
+                    :key="comment.id"
+                    :offset="[0, 40 * index + 10]"
+                  >
+                    <div class="text-body2">
+                      {{ comment.content }}
+                    </div>
                   </q-tooltip>
                 </q-btn>
               </div>
@@ -108,29 +204,50 @@
           <template v-slot:body-cell-status="props">
             <q-td :props="props">
               <div class="w-full">
-                <q-badge :class="props.value === '' || props.value == null
-                  ? 'bg-[#fbfb26] text-black'
-                  : 'bg-white text-secondary text-base '
-                  " :label="props.value === '' || props.value == null
-    ? 'Non pris'
-    : props.value
-    " class="w-full py-2 justify-center" />
+                <q-badge
+                  :class="
+                    props.value === '' || props.value == null
+                      ? 'bg-[#fbfb26] text-black'
+                      : 'bg-white text-secondary text-base '
+                  "
+                  :label="
+                    props.value === '' || props.value == null
+                      ? 'Non pris'
+                      : props.value
+                  "
+                  class="w-full py-2 justify-center"
+                />
               </div>
             </q-td>
           </template>
           <template v-slot:body-cell-action="props">
             <q-td :props="props">
               <div class="w-full">
-                <q-btn square dense icon="remove_red_eye" class="mr-3" @click="
-                  showModalDetail = !showModalDetail;
-                selectedRows = props.row;
-                " />
-                <q-btn square dense icon="delete" color="red" class="mr-3" @click="trashDemande(props.row.id)" />
+                <q-btn
+                  square
+                  dense
+                  icon="remove_red_eye"
+                  class="mr-3"
+                  @click="
+                    showModalDetail = !showModalDetail;
+                    selectedRows = props.row;
+                  "
+                />
+                <q-btn
+                  square
+                  dense
+                  icon="delete"
+                  color="red"
+                  class="mr-3"
+                  @click="trashDemande(props.row.id)"
+                />
               </div>
             </q-td>
           </template>
           <template v-slot:no-data>
-            <div class="full-width row flex-center text-secondary font-bold text-xl q-gutter-sm">
+            <div
+              class="full-width row flex-center text-secondary font-bold text-xl q-gutter-sm"
+            >
               <span>Il n'y a pas de données disponnible</span>
             </div>
           </template>
@@ -301,10 +418,10 @@ export default {
         sortable: true,
       },
       {
-        name: 'comments',
-        field: 'comments',
-        label: 'Commentaire',
-        align: 'center',
+        name: "comments",
+        field: "comments",
+        label: "Commentaire",
+        align: "center",
       },
 
       {
@@ -373,7 +490,7 @@ export default {
     });
   },
   beforeDestroy() {
-    this.socket.off("get demande", () => { });
+    this.socket.off("get demande", () => {});
   },
   methods: {
     ...mapActions(useDemandeStore, [
@@ -381,9 +498,17 @@ export default {
       "changeStatus",
       "deleteDemande",
       "addComments",
-      "deleteComments"
+      "deleteComments",
     ]),
     ...mapActions(useTypeStore, ["getAllTypes"]),
+    convertToJson(commentsJSON) {
+      // Parse the JSON string into an array of objects
+      const commentsArray = JSON.parse(commentsJSON);
+      // Sort the comments array by date of creation
+
+      // Return the sorted array
+      return commentsArray;
+    },
     toggleType(type) {
       this.type = type;
     },
@@ -392,7 +517,7 @@ export default {
       const { error, msg } = this.message;
       if (!error) {
         await this.getallDemandes();
-        this.showDemandeByStatus('attente');
+        this.showDemandeByStatus("attente");
         this.$toast.success(msg);
         this.openComs = false;
         this.coms = "";
@@ -405,7 +530,7 @@ export default {
       const { error, msg } = this.message;
       if (!error) {
         await this.getallDemandes();
-        this.showDemandeByStatus('attente');
+        this.showDemandeByStatus("attente");
         this.$toast.success(msg);
         this.openComs = false;
       } else {
@@ -455,15 +580,18 @@ export default {
       });
     },
     customSort(rows, sortBy, descending) {
-      const data = [...rows]
+      const data = [...rows];
       if (sortBy) {
         data.sort((a, b) => {
-          const x = descending ? b : a
-          const y = descending ? a : b
-          return parseFloat(new Date(x[sortBy]).getTime()) - parseFloat(new Date(y[sortBy]).getTime())
-        })
+          const x = descending ? b : a;
+          const y = descending ? a : b;
+          return (
+            parseFloat(new Date(x[sortBy]).getTime()) -
+            parseFloat(new Date(y[sortBy]).getTime())
+          );
+        });
       }
-      return data
+      return data;
     },
     showDemandeByStatus(status = "attente") {
       if (this.filtertype == "accepte") {
