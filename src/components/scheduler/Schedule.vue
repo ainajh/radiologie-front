@@ -10,6 +10,7 @@ const props = defineProps([
   "label",
   "saveShift",
   "updateShift",
+  "reload",
   "shifts",
   "block",
   "deleteShift",
@@ -35,6 +36,8 @@ function filteredShifts(): [DataShift?] {
 }
 
 function onDrop(event: any) {
+  if (isBeforeToday(dayjs(props?.date))) return;
+
   const shift = JSON.parse(event.dataTransfer.getData("shift"));
 
   const updatedShift: DataShift = {
@@ -72,6 +75,7 @@ function onDrop(event: any) {
     <div v-for="(shift, i) in filteredShifts()" :key="shift?.id">
       <BadgePersonInShift
         :userList="props.userList"
+        :reload="props.reload"
         :name="shift?.nom"
         :shift="shift"
         :updateShift="props.updateShift"

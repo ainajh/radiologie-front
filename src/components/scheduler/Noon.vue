@@ -10,6 +10,7 @@ const props = defineProps([
   "updateShift",
   "deleteShift",
   "monthIndex",
+  "reload",
   "typeTab",
   "userList",
 ]);
@@ -41,6 +42,7 @@ const props = defineProps([
         :monthIndex="props.monthIndex"
         :typeTab="props.typeTab"
         :actualShift="TimeInDay.Noon"
+        :reload="props.reload"
       />
     </EventModal>
   </div>

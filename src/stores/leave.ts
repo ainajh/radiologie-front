@@ -9,11 +9,11 @@ export const useLeaveStore = defineStore("leaveStore", {
   }),
 
   actions: {
-    async getAllLeave() {
+    async getAllLeave(id = null) {
       const token = useCookie("token");
       const { $api } = useNuxtApp();
       try {
-        const response = await $api?.get(`leave`, {
+        const response = await $api?.get(`leave/${id ? id : ""}`, {
           headers: {
             Authorization: `Bearer ${token.value}`,
           },
@@ -73,6 +73,30 @@ export const useLeaveStore = defineStore("leaveStore", {
         );
 
         this.message = { error: false, msg: response?.data?.message };
+      } catch (error: any) {
+        const err = error?.response?.data?.message;
+        this.message = {
+          error: true,
+          msg: err,
+        };
+      }
+    },
+    async toogleValidationPlanning(id: number, validate: boolean) {
+      const { $api } = useNuxtApp();
+      const token = useCookie("token");
+      try {
+        const response = await $api?.put(
+          `schedule/toogleValidationPlanning/${id}/?validate=${validate}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token.value}`,
+            },
+          }
+        );
+
+        this.message = { error: false, msg: response?.data?.message };
+        return response?.data?.data;
       } catch (error: any) {
         const err = error?.response?.data?.message;
         this.message = {

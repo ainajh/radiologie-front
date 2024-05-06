@@ -46,7 +46,8 @@ function toggleModal() {
     <transition name="modal-fade">
       <div
         v-if="isOpen"
-        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+        class="fixed inset-0 flex items-center justify-center bg-opacity-50"
+        style="backdrop-filter: blur(2px)"
       >
         <button @click.stop="" class="">
           <div class="bg-white p-8 rounded-lg shadow-lg">

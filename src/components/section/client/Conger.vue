@@ -89,6 +89,7 @@ import Swal from "sweetalert2";
 const userList = await userService.getAll();
 export default {
   setup() {
+    const me = useCookie("user");
     const user = userStore();
     definePageMeta({
       layout: "admin",
@@ -160,7 +161,7 @@ export default {
         align: "center",
       },
     ];
-    return { columns, formatDateToFrench, user };
+    return { columns, formatDateToFrench, user, me };
   },
   data() {
     return {
@@ -174,7 +175,7 @@ export default {
     };
   },
   async mounted() {
-    await this.getAllLeave();
+    await this.getAllLeave(this.me.role != "admin" ? this.me?.id : "");
     await this.getAllUsers();
   },
   computed: {
@@ -210,7 +211,7 @@ export default {
           } else {
             Swal.fire("Suppression!", "Type supprimer avec succès", "success");
           }
-          await this.getAllLeave();
+          await this.getAllLeave(this.me.role != "admin" ? this.me?.id : "");
         }
       });
     },

@@ -13,4 +13,6 @@ export interface DataShift {
   typeOfSchedule?: number;
   dateStart?: string;
   dateEnd?: string;
+  message?: string | null;
+  is_valid?: number;
 }

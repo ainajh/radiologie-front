@@ -5,7 +5,7 @@ import { useToast } from "vue-toastification";
 const resDataHandler = (res: AxiosResponse) => {
   // console.log(res);
   const toast = useToast();
-  switch (res.status) {
+  switch (res?.status) {
     case 200: {
       if (res.data?.message) toast.success(res.data?.message);
       return res.data?.data;
