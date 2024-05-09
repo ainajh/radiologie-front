@@ -7,7 +7,11 @@ definePageMeta({
 
 <template>
   <div class="w-full bg-white">
-    <div class="my-10 mx-5 py-2"><Month /></div>
+    <div class="my-10 mx-5 py-2">
+      <ClientOnly>
+        <Month />
+      </ClientOnly>
+    </div>
   </div>
 </template>
 

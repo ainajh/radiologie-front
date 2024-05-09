@@ -11,6 +11,11 @@ export const useCommentScheduleStore = defineStore("commentScheduleStore", {
       id: number;
       is_valid: boolean;
     }[];
+    statVacation: {
+      nom: string;
+      nombre_matin_apres_midi: string;
+      nombre_midi: string;
+    }[];
     message: {
       error: boolean;
       msg: string;
@@ -18,6 +23,7 @@ export const useCommentScheduleStore = defineStore("commentScheduleStore", {
   } => ({
     allComments: [],
     allScheduleThisWeek: [],
+    statVacation: [],
     message: {
       error: false,
       msg: "",
@@ -79,6 +85,63 @@ export const useCommentScheduleStore = defineStore("commentScheduleStore", {
         console.log(error);
       }
     },
+    async updateComment(data: any) {
+      const { $api } = useNuxtApp();
+      const token = useCookie("token");
+      try {
+        const response = await $api?.put(`comment/update/${data?.id}`, data, {
+          headers: {
+            Authorization: "Bearer " + token.value,
+          },
+        });
+        this.message = { error: false, msg: response?.data?.message };
+      } catch (error: any) {
+        const err = error?.response?.data?.error;
+        this.message = {
+          error: true,
+          msg: err,
+        };
+        console.log(error);
+      }
+    },
+    async deleteComment(id: number) {
+      const { $api } = useNuxtApp();
+      const token = useCookie("token");
+      try {
+        const response = await $api?.delete(`comment/delete/${id}`, {
+          headers: {
+            Authorization: "Bearer " + token.value,
+          },
+        });
+        this.message = { error: false, msg: response?.data?.message };
+      } catch (error: any) {
+        const err = error?.response?.data?.error;
+        this.message = {
+          error: true,
+          msg: err,
+        };
+      }
+    },
+    async getStatVacation(filter: any = null) {
+      const { $api } = useNuxtApp();
+      const token = useCookie("token");
+      try {
+        const response = await $api?.post(
+          `schedule/statistique`,
+          { filter },
+          {
+            headers: {
+              Authorization: "Bearer " + token.value,
+            },
+          }
+        );
+
+        this.statVacation = response?.data?.statistique;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
     // async deleteTypes(id: number) {
     //   const { $api } = useNuxtApp();
     //   const token = useCookie("token");

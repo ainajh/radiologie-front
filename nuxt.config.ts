@@ -10,6 +10,9 @@ export default defineNuxtConfig({
       fileUrl: process.env.FILE_URL,
     },
   },
+  devServer: {
+    port: 3001,
+  },
   app: {
     head: {
       title: "Radiologie",

@@ -152,7 +152,7 @@ const toogleValidatePlanning = (id: number, validate: boolean) => {
                   {{ TimeInDay.Noon }}
                 </option>
               </select>
-              <label for="block">Select Shift :</label>
+              <label for="block">Select Shiftx :</label>
               <select
                 class="form-select py-1 rounded"
                 id="block"
@@ -163,7 +163,7 @@ const toogleValidatePlanning = (id: number, validate: boolean) => {
                   :key="i"
                   :value="e?.id"
                 >
-                  {{ e?.nom_type + "-" + e?.nom_sous_type }}
+                  {{ e?.nom_place }}
                 </option>
               </select>
               <p>Message :</p>
