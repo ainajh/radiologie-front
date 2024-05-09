@@ -16,7 +16,7 @@ function isTheDayToday() {
     </p>
     <div class="h-2"></div>
     <div class="flex justify-center">
-      <p
+      <div
         class="text-center rounded-full w-6 text-sm text-bold"
         :class="{
           'bg-white': !isTheDayToday() && !isBeforeToday(props.day),
@@ -28,7 +28,7 @@ function isTheDayToday() {
         }"
       >
         {{ props.day.format("DD") }}
-      </p>
+      </div>
     </div>
   </div>
 </template>

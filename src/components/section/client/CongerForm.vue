@@ -6,8 +6,8 @@
     <q-card-section class="q-pt-none" v-if="me.role == 'admin'">
       <q-select
         v-model="form.idPerson"
-        :options="allUsers"
-        label="Nom du personne"
+        :options="allUsers.filter((item) => item.role === 'radiologue')"
+        label="Nom du radiologue"
         emit-value
         map-options
         option-value="id"
@@ -154,7 +154,7 @@ export default {
     async isSuccess() {
       const { error, msg } = this.message;
       if (!error) {
-        await this.getAllLeave(this.me.role != 'admin' ? this.me?.id : '');
+        await this.getAllLeave(this.me.role != "admin" ? this.me?.id : "");
         this.$toast.success(msg);
         this.form = {
           idPerson: null,

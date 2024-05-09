@@ -9,7 +9,7 @@
       </nuxt-link>
       <div class="nav">
         <ul>
-          <li v-if="userDash?.role == 'admin'">
+          <li>
             <nuxt-link
               to="/dashboard"
               :class="{ active: $route.path == '/dashboard' }"
@@ -24,21 +24,13 @@
             >
           </li>
           <li
-            v-if="
-              userDash?.role == 'admin' ||
-              userDash?.role == 'radiologue' ||
-              userDash?.role == 'secretaire'
-            "
+            v-if="userDash?.role == 'admin' || userDash?.role == 'radiologue'"
           >
             <nuxt-link
               to="/dashboard/conge"
               :class="{ active: $route.path.includes('conge') }"
             >
-              {{
-                userDash?.role == "radiologue" || userDash?.role == "secretaire"
-                  ? "Prise de "
-                  : "Gestion du "
-              }}
+              {{ userDash?.role == "radiologue" ? "Prise de " : "Gestion du " }}
               congé</nuxt-link
             >
           </li>
@@ -61,6 +53,13 @@
               to="/dashboard/utilisateur"
               :class="{ active: $route.path.includes('utilisateur') }"
               >Utilisateurs</nuxt-link
+            >
+          </li>
+          <li v-if="userDash?.role == 'admin'">
+            <nuxt-link
+              to="/dashboard/vacation"
+              :class="{ active: $route.path.includes('vacation') }"
+              >Nombre de vacation</nuxt-link
             >
           </li>
           <!-- <li v-if="userDash?.role == 'radiologue'">

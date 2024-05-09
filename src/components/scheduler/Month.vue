@@ -20,6 +20,20 @@ import { useToast } from "vue-toastification";
 import generateColorFromString from "~/utils/functions/generate-color-from-string";
 const toast = useToast();
 const userDash: any = useCookie("user").value;
+import html2pdf from "html2pdf.js";
+
+const exportToPDF = () => {
+  html2pdf(document.getElementById("pdfContent"), {
+    margin: [0, 3, 0, 3],
+    filename: "planning.pdf",
+    image: { type: "jpeg", quality: 1 }, // Augmentez la qualité de l'image si nécessaire
+    html2canvas: { scale: 5 },
+    jsPDF: {
+      format: "a4",
+      orientation: "landscape",
+    },
+  });
+};
 
 let currentMonth = ref(getMonth());
 let weekIndex = ref(0);
@@ -171,7 +185,9 @@ function toggleModalCreateHotiday() {
 async function createHoliday() {
   try {
     const dataHodiday: LeaveData = {
-      idPerson: parseInt(inputName.value),
+      idPerson: parseInt(
+        userDash?.role == "admin" ? inputName.value : userDash?.id
+      ),
       typeOfLeave: typeOfHoliday.value,
       dateStart: dayjs(new Date(inputStartDate.value)).format("YYYY-MM-DD"),
       dateEnd: dayjs(new Date(inputEndDate.value)).format("YYYY-MM-DD"),
@@ -282,107 +298,116 @@ watch(
 </script>
 
 <template>
-  <div class="bg-white text-black">
-    <div class="flex flex-row flex-nowrap h-5">
-      <p class="mx-5 text-lg">Semaine : {{ weekIndex }}</p>
-      <button
-        @click="increment"
-        class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+  <div class="flex flex-row flex-nowrap h-5">
+    <button
+      @click="thisMonth"
+      class="mx-5 flex justify-center items-center h-auto px-2 rounded bg-cyan-600 text-white"
+    >
+      Aujourd'hui
+    </button>
+    <p class="mx-5 text-lg">Semaine : {{ weekIndex }}</p>
+    <button
+      @click="increment"
+      class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+    >
+      &lt;
+    </button>
+    <div class="mx-2">|</div>
+    <button
+      @click="decrement"
+      class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+    >
       >
-        &lt;
-      </button>
-      <div class="mx-2">|</div>
-      <button
-        @click="decrement"
-        class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
-      >
-        >
-      </button>
-      <button
-        @click="thisMonth"
-        class="mx-5 flex justify-center items-center h-auto px-2 rounded bg-cyan-600 text-white"
-      >
-        Today
-      </button>
-      <p class="mx-5">||</p>
-      <p class="mx-5 text-lg">MOIS</p>
-      <button
-        @click="
-          (e: MouseEvent) => {
-            previousMonth()
-            return e
-          }
-        "
-        class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
-      >
-        &lt;
-      </button>
-      <div class="mx-2">|</div>
-      <button
-        @click="
-          (e: MouseEvent) => {
-            nextMonth() 
-            return e
-          }
-        "
-        class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
-      >
-        >
-      </button>
-      <p class="mx-5 w-48 text-lg">{{ actualDate() }}</p>
-      <div class="w-5"></div>
-      <button
-        @click="copyShcedule"
-        class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white px-2"
-      >
-        Copier
-      </button>
-      <div v-if="isCopy" class="w-5"></div>
-      <button
-        v-if="isCopy"
-        @click="pasteShcedule"
-        class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white px-2"
-      >
-        Coller
-      </button>
-      <div v-if="copiedId != null && copiedId != ''" class="w-5"></div>
-      <button
-        v-if="copiedId != null && copiedId != ''"
-        @click="cancelCopyShcedule"
-        class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white px-2"
-      >
-        annuler
-      </button>
+    </button>
 
-      <div class="flex-1"></div>
-      <div
-        class="w-30 max-h-5 flex items-center justify-center bg-cyan-800 px-5 rounded"
+    <p class="mx-5">||</p>
+    <p class="mx-5 text-lg">MOIS</p>
+    <button
+      @click="
+        (e: MouseEvent) => {
+          previousMonth()
+          return e
+        }
+      "
+      class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+    >
+      &lt;
+    </button>
+    <div class="mx-2">|</div>
+    <button
+      @click="
+        (e: MouseEvent) => {
+          nextMonth() 
+          return e
+        }
+      "
+      class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+    >
       >
-        <p class="text-center text-white">en travaille</p>
-      </div>
-      <div class="w-5"></div>
-      <div
-        class="w-30 max-h-5 flex items-center justify-center bg-red-600 px-5 rounded"
-      >
-        <p class="text-center text-white">en congé / duplication</p>
-      </div>
-      <button
-        class="flex justify-center items-center h-auto rounded text-white px-2 mx-2"
-        :class="`bg-${isContainValidate ? 'red-500' : 'primary'}`"
-        @click="toggleAllPlanning"
-        v-if="userDash?.role == 'admin'"
-      >
-        {{ isContainValidate ? "Dévalider" : "Valider" }} tous
-      </button>
-      <div class="w-5"></div>
-      <div
-        class="w-30 max-h-5 flex items-center justify-center bg-cyan-600 px-5 rounded"
-      >
-        <button class="w-full" @click="toggleModalCreateHotiday">
-          <p class="text-center text-white">+ ajouter conger</p>
-        </button>
-      </div>
+    </button>
+    <p class="mx-5 w-48 text-lg">{{ actualDate() }}</p>
+    <div class="w-5"></div>
+    <button
+      v-if="userDash.role == 'admin'"
+      @click="copyShcedule"
+      class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white px-2"
+    >
+      Copier
+    </button>
+    <div v-if="isCopy" class="w-5"></div>
+    <button
+      v-if="isCopy && userDash.role == 'admin'"
+      @click="pasteShcedule"
+      class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white px-2"
+    >
+      Coller
+    </button>
+    <div v-if="copiedId != null && copiedId != ''" class="w-5"></div>
+    <button
+      v-if="copiedId != null && copiedId != ''"
+      @click="cancelCopyShcedule"
+      class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white px-2"
+    >
+      annuler
+    </button>
+
+    <div class="flex-1"></div>
+    <!-- <div
+      class="w-30 max-h-5 flex items-center justify-center bg-cyan-800 px-5 rounded"
+    >
+      <p class="text-center text-white">en travaille</p>
     </div>
+    <div class="w-5"></div>
+    <div
+      class="w-30 max-h-5 flex items-center justify-center bg-red-600 px-5 rounded"
+    >
+      <p class="text-center text-white">en congé / duplication</p>
+    </div> -->
+    <div
+      class="w-30 max-h-5 flex items-center justify-center bg-green-600 mx-2 px-5 rounded text-white"
+      @click="exportToPDF"
+    >
+      Imprimer
+    </div>
+    <button
+      class="flex justify-center items-center h-auto rounded text-white px-2 mx-2"
+      :class="`bg-${isContainValidate ? 'red-500' : 'primary'}`"
+      @click="toggleAllPlanning"
+      v-if="userDash?.role == 'admin'"
+    >
+      {{ isContainValidate ? "Dévalider" : "Valider" }} tous
+    </button>
+    <div class="w-5"></div>
+    <div
+      class="w-30 max-h-5 flex items-center justify-center bg-cyan-600 px-5 rounded"
+      v-if="userDash?.role != 'secretaire'"
+    >
+      <button class="w-full" @click="toggleModalCreateHotiday">
+        <p class="text-center text-white">+ ajouter conger</p>
+      </button>
+    </div>
+  </div>
+  <div class="bg-white text-black" id="pdfContent">
     <div class="w-full flex flex-row flex-nowrap">
       <div class="w-20 max-w-20 flex items-center justify-center">
         <p class="text-center"></p>
@@ -399,7 +424,7 @@ watch(
       :key="i"
     >
       <div class="w-20 flex items-center justify-center">
-        <p class="text-center w-full overflow-elipsis ">
+        <p class="text-center w-full overflow-elipsis">
           {{ e.nom_place }}
         </p>
       </div>
@@ -470,7 +495,7 @@ watch(
     <div>
       <div class="my-5">
         <div class="flex flex-row items-center">
-          <p class="text-xl">Leave list :</p>
+          <p class="text-xl">Liste des congés :</p>
           <!-- <div class="flex-1"></div> -->
           <!-- <div class="w-5"></div> -->
           <!-- <div
@@ -479,8 +504,13 @@ watch(
             <p class="text-center text-white">Working day</p>
           </div> -->
           <div class="w-5"></div>
-
-          <p class="mx-5 text-lg">WEEK : {{ weekIndex }}</p>
+          <button
+            @click="thisMonth"
+            class="mx-5 flex justify-center items-center h-auto px-2 rounded bg-cyan-600 text-white"
+          >
+            Ajourd'hui
+          </button>
+          <p class="mx-5 text-lg">Semaine : {{ weekIndex }}</p>
           <button
             @click="increment"
             class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
@@ -494,14 +524,9 @@ watch(
           >
             >
           </button>
-          <button
-            @click="thisMonth"
-            class="mx-5 flex justify-center items-center h-auto px-2 rounded bg-cyan-600 text-white"
-          >
-            Today
-          </button>
+
           <p class="mx-5">||</p>
-          <p class="mx-5 text-lg">MONTH</p>
+          <p class="mx-5 text-lg">Mois</p>
           <button
             @click="
               (e: MouseEvent) => {
@@ -528,9 +553,10 @@ watch(
           <p class="mx-5 w-48 text-lg">{{ actualDate() }}</p>
           <div
             class="w-30 max-h-5 flex items-center justify-center bg-cyan-600 px-5 rounded"
+            v-if="userDash.role != 'secretaire'"
           >
             <button class="w-full" @click="toggleModalCreateHotiday">
-              <p class="text-center text-white text-sm">+ add holiday</p>
+              <p class="text-center text-white text-sm">+ Ajouter congé</p>
             </button>
           </div>
         </div>
@@ -562,7 +588,11 @@ watch(
                   }}
                 </p>
                 <button
-                  v-if="!isBeforeToday(dayjs(holiday.dateStart))"
+                  v-if="
+                    (!isBeforeToday(dayjs(holiday.dateStart)) &&
+                      userDash.role == 'admin') ||
+                    userDash.id == holiday.idPerson
+                  "
                   class="bg-pink-100 flex flex-nowrap justify-center items-center max-h-3 min-w-3 rounded"
                   @click.stop="() => deleteHoliday(parseInt(holiday.id))"
                 >
@@ -612,17 +642,24 @@ watch(
                     </div>
                   </div>
 
-                  <p>Name</p>
-                  <select
-                    class="form-select py-1 rounded w-full"
-                    id="block"
-                    v-model="inputName"
-                    placeholder="name"
-                  >
-                    <option v-for="(e, i) in userList" :key="i" :value="e?.id">
-                      {{ e?.nom }}
-                    </option>
-                  </select>
+                  <div v-if="userDash?.role == 'admin'">
+                    <p>Name</p>
+                    <select
+                      class="form-select py-1 rounded w-full"
+                      id="block"
+                      v-model="inputName"
+                      placeholder="name"
+                    >
+                      <option
+                        v-for="(e, i) in userList"
+                        :key="i"
+                        :value="e?.id"
+                      >
+                        {{ e?.nom }}
+                      </option>
+                    </select>
+                  </div>
+
                   <p>Type</p>
                   <select
                     class="form-select py-1 rounded w-full"
@@ -645,6 +682,7 @@ watch(
                       <p>Cancel</p>
                     </button>
                     <button
+                      v-if="userDash?.role != 'secretaire'"
                       @click="createHoliday"
                       class="text-black px-2 bg-cyan-300 hover:bg-cyan-500 rounded text-md"
                     >
