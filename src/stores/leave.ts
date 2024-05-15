@@ -105,5 +105,25 @@ export const useLeaveStore = defineStore("leaveStore", {
         };
       }
     },
+    async revalidateWeek(data: any) {
+      const { $api } = useNuxtApp();
+      const token = useCookie("token");
+      try {
+        const response = await $api?.post(`modif-week/add`, data, {
+          headers: {
+            Authorization: `Bearer ${token.value}`,
+          },
+        });
+
+        this.message = { error: false, msg: response?.data?.message };
+        return response?.data?.data;
+      } catch (error: any) {
+        const err = error?.response?.data?.message;
+        this.message = {
+          error: true,
+          msg: err,
+        };
+      }
+    },
   },
 });

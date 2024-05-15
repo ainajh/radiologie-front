@@ -62,20 +62,28 @@ function toggleModal() {
             <div
               class="flex flex-col space-x-2 space-y-4 items-start w-[500px]"
             >
-              <div class="flex flex-row space-x-2">
-                <div class="flex flex-row space-x-1">
-                  <label for="date">Start Date:</label>
-                  <input type="date" v-model="inputStartDate" />
+              <div class="w-full flex flex-col gap-4">
+                <div class="flex flex-row">
+                  <label for="date">Date de début:</label>
+                  <input
+                    type="date"
+                    v-model="inputStartDate"
+                    class="bordered-1 w-full"
+                  />
                 </div>
-                <div class="flex flex-row space-x-1">
-                  <label for="date">End Date:</label>
-                  <input type="date" v-model="inputEndDate" />
+                <div class="flex flex-row">
+                  <label for="date">Date du fin:</label>
+                  <input
+                    type="date"
+                    v-model="inputEndDate"
+                    class="bordered-1 w-full"
+                  />
                 </div>
               </div>
 
               <p>Name</p>
               <select
-                class="form-select py-1 rounded w-full"
+                class="form-select rounded bordered-1 w-full"
                 id="block"
                 v-model="inputName"
                 placeholder="name"
@@ -86,11 +94,11 @@ function toggleModal() {
               </select>
               <p>Type</p>
               <select
-                class="form-select py-1 rounded w-full"
+                class="form-select py-1 rounded bordered-1 w-full"
                 id="block2"
                 v-model="inputTypeOfHoliday"
               >
-                <option :value="'Holiday'">Holiday</option>
+                <option :value="'Holiday'">Vacances</option>
               </select>
               <!-- <input
                 type="name"
@@ -103,13 +111,13 @@ function toggleModal() {
                   @click="toggleModal"
                   class="text-white px-2 bg-red-500 hover:bg-red-600 rounded text-md"
                 >
-                  <p>Cancel</p>
+                  <p>Annuler</p>
                 </button>
                 <button
                   @click="updateHoliday"
                   class="text-white px-2 bg-cyan-600 hover:bg-cyan-800 rounded text-md"
                 >
-                  <p>Save</p>
+                  <p>Modifier</p>
                 </button>
               </div>
             </div>

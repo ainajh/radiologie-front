@@ -83,6 +83,7 @@ function onDrop(event: any) {
         :typeTab="props.typeTab"
         :block="props.block"
         :actualShift="props.actualShift"
+        :saveShift="props.saveShift"
       />
     </div>
   </div>
