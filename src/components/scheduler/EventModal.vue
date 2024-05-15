@@ -93,7 +93,7 @@ async function saveData() {
 
               <p>Nom du personnel :</p>
               <select
-                class="form-select py-1 rounded w-full"
+                class="form-select py-1 rounded w-full bordered-1"
                 id="block"
                 v-model="inputValue"
                 placeholder="name"
@@ -104,11 +104,11 @@ async function saveData() {
               </select>
               <p>Type :</p>
               <select
-                class="form-select py-1 rounded w-full"
+                class="form-select py-1 rounded w-full bordered-1"
                 id="block2"
                 v-model="inputSelectTypeSchedule"
               >
-                <option :value="0">Working day</option>
+                <option :value="0">Jour de travail</option>
                 <!-- <option :value="1">Holiday</option> -->
               </select>
               <div v-if="false">

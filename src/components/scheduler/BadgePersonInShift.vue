@@ -14,6 +14,7 @@ const props = defineProps([
   "block",
   "userList",
   "actualShift",
+  "saveShift",
 ]);
 
 let isHovering = ref(false);
@@ -69,6 +70,7 @@ function displayMessage(mess: string) {
     <UpdateEventModal
       :shift="props.shift"
       :updateShift="props.updateShift"
+      :saveShift="props.saveShift"
       :reload="props.reload"
       :typeTab="props.typeTab"
       :block="props.block"
@@ -94,7 +96,7 @@ function displayMessage(mess: string) {
           }"
         >
           <p
-            class="text-xs text-start flex-1 py-0.5  w-full rounded text-white relative"
+            class="text-xs text-start flex-1 py-0.5 w-full rounded text-white relative"
           >
             {{ props.shift.nom }}
             <span
@@ -110,7 +112,10 @@ function displayMessage(mess: string) {
             </span>
           </p>
           <button
-            v-if="!isBeforeToday(dayjs(props.shift?.date)) && userDash?.role == 'admin'"
+            v-if="
+              !isBeforeToday(dayjs(props.shift?.date)) &&
+              userDash?.role == 'admin'
+            "
             class="bg-pink-100 flex flex-nowrap justify-center items-center max-h-3 min-w-3 rounded"
             @click.stop="onDeleteBadget"
           >
@@ -124,7 +129,7 @@ function displayMessage(mess: string) {
         <div
           v-if="isHovering && props.shift.message"
           class="absolute z-index-50 bg-black p-1 top-6 opacity-90 rounded text-white"
-          style="z-index: 2;"
+          style="z-index: 2"
         >
           {{ displayMessage(props.shift?.message) }}
         </div>

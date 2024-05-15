@@ -258,6 +258,11 @@ const getAllSheduleThisWeek = async () => {
   );
 };
 const toggleAllPlanning = async () => {
+  let modification = [];
+  const weekStartEnd = currentMonth.value[weekIndex.value]
+    ?.filter((v, idx) => idx == 0 || idx == 6)
+    .map((item) => formatDate(item));
+
   await getAllSheduleThisWeek();
   const allSched = await commentStore.allScheduleThisWeek?.map(
     (item) => item.id
@@ -267,8 +272,18 @@ const toggleAllPlanning = async () => {
   );
 
   for (let sh of allSched) {
+    modification.push(sh);
     await leaveStore.toogleValidationPlanning(sh, !isValidExists);
   }
+
+  const arrToString = (array: any) =>
+    "[" + array.map((item: any) => `'${item}'`).join(", ") + "]";
+  await leaveStore.revalidateWeek({
+    semaine: arrToString(weekStartEnd),
+    modification: arrToString(modification),
+    valide : !isValidExists
+  });
+
   refreshMe();
 };
 
@@ -299,53 +314,60 @@ watch(
 
 <template>
   <div class="flex flex-row flex-nowrap h-5">
-    <button
-      @click="thisMonth"
-      class="mx-5 flex justify-center items-center h-auto px-2 rounded bg-cyan-600 text-white"
-    >
-      Aujourd'hui
-    </button>
-    <p class="mx-5 text-lg">Semaine : {{ weekIndex }}</p>
-    <button
-      @click="increment"
-      class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
-    >
-      &lt;
-    </button>
-    <div class="mx-2">|</div>
-    <button
-      @click="decrement"
-      class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
-    >
+    <div class="flex">
+      <div class="month flex">
+        <p class="mx-5 text-lg">MOIS</p>
+        <button
+          @click="
+          (e: MouseEvent) => {
+            previousMonth()
+            return e
+          }
+        "
+          class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+        >
+          &lt;
+        </button>
+        <div class="mx-2">|</div>
+        <button
+          @click="
+          (e: MouseEvent) => {
+            nextMonth() 
+            return e
+          }
+        "
+          class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+        >
+          >
+        </button>
+      </div>
+      <p class="mx-5">||</p>
+      <div class="semaine flex">
+        <p class="mx-5 text-lg">Semaine : {{ weekIndex }}</p>
+        <button
+          @click="increment"
+          class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+        >
+          &lt;
+        </button>
+        <div class="mx-2">|</div>
+        <button
+          @click="decrement"
+          class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+        >
+          >
+        </button>
+      </div>
+      <button
+        @click="thisMonth"
+        class="mx-5 flex justify-center items-center h-auto px-2 rounded bg-cyan-600 text-white"
       >
-    </button>
+        Aujourd'hui
+      </button>
 
-    <p class="mx-5">||</p>
-    <p class="mx-5 text-lg">MOIS</p>
-    <button
-      @click="
-        (e: MouseEvent) => {
-          previousMonth()
-          return e
-        }
-      "
-      class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
-    >
-      &lt;
-    </button>
-    <div class="mx-2">|</div>
-    <button
-      @click="
-        (e: MouseEvent) => {
-          nextMonth() 
-          return e
-        }
-      "
-      class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
-    >
-      >
-    </button>
-    <p class="mx-5 w-48 text-lg">{{ actualDate() }}</p>
+      <p class="mx-5 w-48 text-lg">{{ actualDate() }}</p>
+    </div>
+
     <div class="w-5"></div>
     <button
       v-if="userDash.role == 'admin'"
@@ -503,54 +525,59 @@ watch(
           >
             <p class="text-center text-white">Working day</p>
           </div> -->
-          <div class="w-5"></div>
-          <button
-            @click="thisMonth"
-            class="mx-5 flex justify-center items-center h-auto px-2 rounded bg-cyan-600 text-white"
-          >
-            Ajourd'hui
-          </button>
-          <p class="mx-5 text-lg">Semaine : {{ weekIndex }}</p>
-          <button
-            @click="increment"
-            class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
-          >
-            &lt;
-          </button>
-          <div class="mx-2">|</div>
-          <button
-            @click="decrement"
-            class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
-          >
+          <div class="flex">
+            <div class="month flex">
+              <p class="mx-5 text-lg">MOIS</p>
+              <button
+                @click="
+                (e: MouseEvent) => {
+                  previousMonth()
+                  return e
+                }
+              "
+                class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+              >
+                &lt;
+              </button>
+              <div class="mx-2">|</div>
+              <button
+                @click="
+                (e: MouseEvent) => {
+                  nextMonth() 
+                  return e
+                }
+              "
+                class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+              >
+                >
+              </button>
+            </div>
+            <p class="mx-5">||</p>
+            <div class="semaine flex">
+              <p class="mx-5 text-lg">Semaine : {{ weekIndex }}</p>
+              <button
+                @click="increment"
+                class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+              >
+                &lt;
+              </button>
+              <div class="mx-2">|</div>
+              <button
+                @click="decrement"
+                class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
+              >
+                >
+              </button>
+            </div>
+            <button
+              @click="thisMonth"
+              class="mx-5 flex justify-center items-center h-auto px-2 rounded bg-cyan-600 text-white"
             >
-          </button>
+              Aujourd'hui
+            </button>
 
-          <p class="mx-5">||</p>
-          <p class="mx-5 text-lg">Mois</p>
-          <button
-            @click="
-              (e: MouseEvent) => {
-                previousMonth()
-                return e
-              }
-            "
-            class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
-          >
-            &lt;
-          </button>
-          <div class="mx-2">|</div>
-          <button
-            @click="
-              (e: MouseEvent) => {
-                nextMonth() 
-                return e
-              }
-            "
-            class="flex justify-center items-center h-auto min-w-5 rounded bg-cyan-600 text-white"
-          >
-            >
-          </button>
-          <p class="mx-5 w-48 text-lg">{{ actualDate() }}</p>
+            <p class="mx-5 w-48 text-lg">{{ actualDate() }}</p>
+          </div>
           <div
             class="w-30 max-h-5 flex items-center justify-center bg-cyan-600 px-5 rounded"
             v-if="userDash.role != 'secretaire'"
@@ -616,7 +643,6 @@ watch(
           <div
             v-if="isOpen"
             class="fixed inset-0 flex items-center justify-center bg-opacity-50"
-            style="background: rgba(black) !important"
           >
             <button @click.stop="" class="">
               <div class="bg-white p-8 rounded-lg shadow-lg">
@@ -631,21 +657,32 @@ watch(
                 <div
                   class="flex flex-col space-x-2 space-y-4 items-start w-[500px]"
                 >
-                  <div class="flex flex-row space-x-2">
-                    <div class="flex flex-row space-x-1">
-                      <label for="date">Start Date:</label>
-                      <input type="date" v-model="inputStartDate" />
+                  <div class="flex flex-col gap-4 ml-2">
+                    <div class="flex flex-row space-x-4">
+                      <label for="date">Date de début:</label>
+                      <input
+                        type="date"
+                        v-model="inputStartDate"
+                        class="bordered-1"
+                      />
                     </div>
-                    <div class="flex flex-row space-x-1">
-                      <label for="date">End Date:</label>
-                      <input type="date" v-model="inputEndDate" />
+                    <div class="flex flex-row space-x-4">
+                      <label for="date">Date du fin:</label>
+                      <input
+                        type="date"
+                        v-model="inputEndDate"
+                        class="bordered-1"
+                      />
                     </div>
                   </div>
 
-                  <div v-if="userDash?.role == 'admin'">
-                    <p>Name</p>
+                  <div
+                    v-if="userDash?.role == 'admin'"
+                    class="w-full flex gap-2"
+                  >
+                    <label>Radiologue</label>
                     <select
-                      class="form-select py-1 rounded w-full"
+                      class="form-select py-1 rounded w-full bordered-1"
                       id="block"
                       v-model="inputName"
                       placeholder="name"
@@ -660,13 +697,13 @@ watch(
                     </select>
                   </div>
 
-                  <p>Type</p>
+                  <p>Type du congé</p>
                   <select
-                    class="form-select py-1 rounded w-full"
+                    class="form-select py-1 rounded w-full bordered-1"
                     id="block2"
                     v-model="typeOfHoliday"
                   >
-                    <option :value="'Holiday'">Holiday</option>
+                    <option :value="'Holiday'">Vacances</option>
                   </select>
                   <!-- <input
                     type="name"
@@ -679,14 +716,14 @@ watch(
                       @click="toggleModalCreateHotiday"
                       class="text-black px-2 bg-pink-300 hover:bg-pink-500 rounded text-md"
                     >
-                      <p>Cancel</p>
+                      <p>Annuler</p>
                     </button>
                     <button
                       v-if="userDash?.role != 'secretaire'"
                       @click="createHoliday"
                       class="text-black px-2 bg-cyan-300 hover:bg-cyan-500 rounded text-md"
                     >
-                      <p>Save</p>
+                      <p>Sauvegarder</p>
                     </button>
                   </div>
                 </div>

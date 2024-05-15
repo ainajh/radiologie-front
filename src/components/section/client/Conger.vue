@@ -130,11 +130,11 @@ export default {
         label: "Nom",
         align: "center",
       },
-      // {
-      //   field: "typeOfLeave",
-      //   label: "Type du congé",
-      //   align: "center",
-      // },
+      {
+        field: "typeOfLeave",
+        label: "Type du congé",
+        align: "center",
+      },
       {
         field: "dateStart",
         name: "dateStart",
