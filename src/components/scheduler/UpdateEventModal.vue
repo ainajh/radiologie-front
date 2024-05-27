@@ -35,7 +35,11 @@ let inputStartDate = ref(dayjs().format("YYYY-MM-DD"));
 let inputEndDate = ref(dayjs().format("YYYY-MM-DD"));
 import { useToast } from "vue-toastification";
 const toast = useToast();
-
+const getShifts = () => {
+  return props.actualShift === TimeInDay.Noon
+    ? [TimeInDay.Morning, TimeInDay.Afternoon, TimeInDay.Noon]
+    : [TimeInDay.Morning, TimeInDay.Afternoon];
+};
 const duplicateRadiologue = async () => {
   const updatedShift: DataShift = {
     id: props.shift?.id,
@@ -50,9 +54,9 @@ const duplicateRadiologue = async () => {
     typeOfSchedule: 1,
   };
   if (
-    isBeforeToday(dayjs(new Date(dateDuplicate.value))) 
+    isBeforeToday(dayjs(new Date(dateDuplicate.value)))
     // ||
-    // dayjs(new Date(dateDuplicate.value)).isSame(props.shift?.date, "day") 
+    // dayjs(new Date(dateDuplicate.value)).isSame(props.shift?.date, "day")
     // || dayjs(new Date(dateDuplicate.value)).isBefore(props.shift?.date, "day")
   ) {
     toast.error(
@@ -131,21 +135,159 @@ const toogleValidatePlanning = (id: number, validate: boolean) => {
 };
 </script>
 <template>
-  <button class="w-full" @click.stop="toggleModal">
+  <div class="w-full" @click.stop="toggleModal">
     <slot></slot>
-  </button>
+  </div>
   <button
     v-if="isOpen"
-    class="fixed inset-0 flex items-center justify-center"
+    class="fixed z-50 inset-0 flex items-center justify-center"
     @click.stop="toggleModal"
   >
     <transition name="modal-fade">
       <div
         v-if="isOpen"
-        class="fixed inset-0 flex items-center justify-center bg-opacity-50"
+        class="fixed z-50 inset-0 flex items-center justify-center bg-opacity-50"
         style="backdrop-filter: blur(2px)"
       >
-        <button @click.stop="" class="">
+        <div
+          class="bg-white border-2 md:w-[400px] w-[80vw] px-5 py-4 shadow-xl"
+        >
+          <div
+            class="flex flex-col space-x-2 space-y-4 items-start"
+            @click.stop=""
+          >
+            <!-- <div
+              v-if="inputSelectTypeSchedule === 0"
+              class="text-center w-full"
+            >
+              Le
+              <span class="font-bold">{{
+                props.date.format("DD MMMM YYYY")
+              }}</span>
+              dans
+              <span class="font-bold" :style="{ color: `#${block.bg}` }">{{
+                block.nom_place
+              }}</span>
+            </div> -->
+            <div class="grid grid-cols-1 gap-4 w-full">
+              <q-select
+                v-if="!isDuplicate"
+                v-model="inputPerson"
+                outlined
+                dense
+                autofocus
+                :options="userList"
+                label="Nom du radiologue"
+                option-label="nom"
+                transition-show="flip-up"
+                transition-hide="flip-down"
+                option-value="id"
+                emit-value
+                map-options
+                :disable="isDuplicate"
+              />
+              <q-input
+                v-if="!isDuplicate"
+                outlined
+                dense
+                autofocus
+                label="Date"
+                v-model="inputDate"
+                type="date"
+                :disable="isDuplicate"
+              />
+              <q-select
+                v-if="!isDuplicate"
+                v-model="inputShift"
+                outlined
+                dense
+                autofocus
+                :options="getShifts()"
+                label="Selectionner la vacation"
+                transition-show="flip-up"
+                transition-hide="flip-down"
+                :disable="isDuplicate"
+              />
+              <q-select
+                v-model="inputBlock"
+                outlined
+                dense
+                autofocus
+                :options="props?.typeTab"
+                label="Selectionner le lieu "
+                option-label="nom_place"
+                class="mb-4"
+                transition-show="flip-up"
+                transition-hide="flip-down"
+                option-value="id"
+                emit-value
+                map-options
+                :disable="isDuplicate"
+                v-if="!isDuplicate"
+              />
+              <q-input
+                v-if="!isDuplicate"
+                v-model="message"
+                outlined
+                dense
+                autogrow
+                type="textarea"
+                label="Message"
+              />
+            </div>
+            <q-input
+              v-if="isDuplicate"
+              outlined
+              dense
+              autofocus
+              label="Selectionner la date de duplication"
+              v-model="dateDuplicate"
+              type="date"
+              class="w-full"
+            />
+            <div class="text-primary flex gap-2 justify-end w-full">
+              <q-btn
+                dense
+                outline
+                label="Annuler"
+                v-close-popup
+                color="red"
+                class="text-black"
+                v-if="!props.shift.is_valid"
+                @click.stop="
+                  isDuplicate ? (isDuplicate = false) : toggleModal()
+                "
+              />
+              <q-btn
+                label="Modifier"
+                color="primary"
+                dense
+                type="submit"
+                v-if="!props.shift.is_valid && !isDuplicate"
+                @click.stop="updateShift"
+              />
+              <!-- <q-btn
+                label="Dupliquer"
+                color="blue"
+                dense
+                @click="
+                  isDuplicate ? duplicateRadiologue() : (isDuplicate = true)
+                "
+              /> -->
+              <q-btn
+                v-if="userDash?.role == 'admin' && !isDuplicate"
+                @click="
+                  toogleValidatePlanning(props.shift.id, !props.shift.is_valid)
+                "
+                :label="props.shift.is_valid ? 'Dévalider' : 'Valider'"
+                :color="props.shift.is_valid ? 'red' : 'indigo'"
+                dense
+                class="px-1"
+              />
+            </div>
+          </div>
+        </div>
+        <!-- <button @click.stop="" class="">
           <div class="bg-white p-8 rounded-lg shadow-lg w-[500px]">
             <div class="flex justify-end">
               <button
@@ -279,7 +421,7 @@ const toogleValidatePlanning = (id: number, validate: boolean) => {
               </div>
             </div>
           </div>
-        </button>
+        </button> -->
       </div>
     </transition>
   </button>
