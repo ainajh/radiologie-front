@@ -132,7 +132,7 @@ export default {
       },
       {
         field: "typeOfLeave",
-        label: "Type du congé",
+        label: "Type de congés",
         align: "center",
       },
       {
@@ -147,7 +147,7 @@ export default {
       {
         field: "dateEnd",
         name: "dateEnd",
-        label: "Date du fin",
+        label: "Date de fin",
         align: "center",
         format: (v, row) => {
           return v == null ? "" : formatDateToFrench(v);

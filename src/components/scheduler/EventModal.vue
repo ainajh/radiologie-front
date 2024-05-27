@@ -36,7 +36,7 @@ async function saveData() {
       shift: props.actualShift,
       idPerson: inputValue.value,
       idType: props.block.id,
-      typeOfSchedule: inputSelectTypeSchedule.value,
+      typeOfSchedule: 0,
       dateStart: inputStartDate.value,
       dateEnd: inputEndDate.value,
       message: message.value,
@@ -45,25 +45,76 @@ async function saveData() {
   }
 
   isOpen.value = !isOpen.value;
-  inputValue.value = 0;
+  inputValue.value = null;
 }
 </script>
 <template>
   <button class="w-full" @click="toggleModal"><slot></slot></button>
   <button
     v-if="isOpen"
-    class="fixed inset-0 flex items-center justify-center"
+    class="fixed z-50 inset-0 flex items-center justify-center"
     @click="toggleModal"
   >
     <transition name="modal-fade">
       <div
         v-if="isOpen"
-        class="fixed inset-0 flex items-center justify-center bg-opacity-50"
-        style="backdrop-filter: blur(5px)"
+        class="fixed z-50 inset-0 flex items-center justify-center bg-opacity-50"
+        style="backdrop-filter: blur(2px)"
       >
         <button @click.stop="" class="">
-          <div class="bg-white p-8 rounded-lg shadow-lg">
-            <div class="flex justify-end">
+          <div
+            class="bg-white border-2 md:w-[400px] w-[80vw] px-5 py-4 shadow-xl"
+          >
+            <div class="flex flex-col space-x-2 space-y-4 items-start">
+              <div
+                v-if="inputSelectTypeSchedule === 0"
+                class="text-center w-full"
+              >
+                Le
+                <span class="font-bold">{{
+                  props.date.format("DD MMMM YYYY")
+                }}</span>
+                dans
+                <span class="font-bold" :style="{ color: `#${block.bg}` }">{{
+                  block.nom_place
+                }}</span>
+              </div>
+              <div class="grid grid-cols-1 w-full">
+                <q-select
+                  v-model="inputValue"
+                  dense
+                  outlined
+                  autofocus
+                  :options="userList"
+                  label="Nom du radiologue"
+                  option-label="nom"
+                  class="mb-4"
+                  transition-show="flip-up"
+                  transition-hide="flip-down"
+                  option-value="id"
+                  emit-value
+                  map-options
+                />
+              </div>
+              <div class="text-primary flex gap-2 justify-end w-full">
+                <q-btn
+                  outline
+                  label="Annuler"
+                  v-close-popup
+                  color="red"
+                  class="text-black"
+                  @click="toggleModal"
+                />
+                <q-btn
+                  label="Sauvegarder"
+                  color="primary"
+                  type="submit"
+                  @click="saveData"
+                  v-if="inputValue"
+                />
+              </div>
+            </div>
+            <!-- <div class="flex justify-end">
               <button
                 @click="toggleModal"
                 class="text-gray-500 hover:text-gray-700 font-bold text-2xl"
@@ -109,12 +160,7 @@ async function saveData() {
                 v-model="inputSelectTypeSchedule"
               >
                 <option :value="0">Jour de travail</option>
-                <!-- <option :value="1">Holiday</option> -->
               </select>
-              <div v-if="false">
-                <p>Message :</p>
-                <textarea type="t" v-model="message" class="w-full" />
-              </div>
 
               <div class="flex flex-row items-start space-x-5">
                 <button
@@ -130,7 +176,7 @@ async function saveData() {
                   <p>Sauvegarder</p>
                 </button>
               </div>
-            </div>
+            </div> -->
           </div>
         </button>
       </div>

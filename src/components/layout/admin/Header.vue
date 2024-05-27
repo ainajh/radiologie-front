@@ -13,7 +13,7 @@
             <nuxt-link
               to="/dashboard"
               :class="{ active: $route.path == '/dashboard' }"
-              >Liste Demande</nuxt-link
+              >Liste des demandes</nuxt-link
             >
           </li>
           <li v-if="userDash?.role == 'admin'">
@@ -30,14 +30,14 @@
               to="/dashboard/conge"
               :class="{ active: $route.path.includes('conge') }"
             >
-              {{ userDash?.role == "radiologue" ? "Prise de " : "Gestion du " }}
-              congé</nuxt-link
+              {{ userDash?.role == "radiologue" ? "Prise des " : "Gestion des " }}
+              congés</nuxt-link
             >
           </li>
           <li>
             <nuxt-link
-              to="/schedule"
-              :class="{ active: $route.path.includes('schedule') }"
+              to="/dashboard/planning"
+              :class="{ active: $route.path.includes('planning') }"
               >Planning</nuxt-link
             >
           </li>
@@ -59,7 +59,7 @@
             <nuxt-link
               to="/dashboard/vacation"
               :class="{ active: $route.path.includes('vacation') }"
-              >Nombre de vacation</nuxt-link
+              >Nombre de vacations</nuxt-link
             >
           </li>
           <!-- <li v-if="userDash?.role == 'radiologue'">
@@ -101,7 +101,7 @@
             </q-menu>
           </q-avatar>
         </div>
-        <div class="pg-messagerie__side-new">
+        <div class="pg-messagerie__side-new " style="height: 50px; overflow: hidden; padding: 0 !important">
           <q-select
             v-model="lieu"
             :options="[
@@ -114,7 +114,6 @@
             @update:model-value="changeLocation"
             emit-value
             map-options
-            class="q-mb-md"
             placeholder="Selectionner un utilisateur"
           />
         </div>
