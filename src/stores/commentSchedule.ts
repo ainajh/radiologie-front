@@ -50,6 +50,28 @@ export const useCommentScheduleStore = defineStore("commentScheduleStore", {
         console.log(error);
       }
     },
+    async deleteAllSheduleThisWeek(data: string[]) {
+      const { $api } = useNuxtApp();
+      const token = useCookie("token");
+      try {
+        const response = await $api?.post(
+          `schedule/deleteAllSheduleThisWeek`,
+          data,
+          {
+            headers: {
+              Authorization: "Bearer " + token.value,
+            },
+          }
+        );
+        this.message = { error: false, msg: response?.data?.message };
+      } catch (error) {
+        const err = error?.response?.data?.error;
+        this.message = {
+          error: true,
+          msg: err,
+        };
+      }
+    },
     async getAllCommentInThisWeek(data: string[]) {
       const { $api } = useNuxtApp();
       const token = useCookie("token");

@@ -98,14 +98,19 @@ const props = defineProps({
     type: Function,
     default: () => {},
   },
+  isContainValidate: {
+    type: Boolean,
+  },
 });
 import dayjs from "dayjs";
 import UserService from "@/services/user.service";
 import LeaveService from "~/services/leave.service";
 import type { LeaveData } from "~/utils/constants/leave-interface";
+import { useToast } from "vue-toastification";
 
 const userDash: any = useCookie("user").value;
 const userList = await UserService.getAll();
+const toast = useToast();
 
 const form = ref({
   periode: "journe",
@@ -127,6 +132,14 @@ const required = (val: any) => {
   return val !== null || val != "";
 };
 const createLeave = async () => {
+  if (props.isContainValidate) {
+    toast.error(
+      userDash?.role == "admin"
+        ? "Medecin en vacation cette semaine , merci de dévalider le planning "
+        : "Vous êtes en vacation cette semaine, merci de demander à l’administrateur de dévalider la semaine de travail. "
+    );
+    return;
+  }
   if (form.value.periode == "journe") {
     form.value.inputEndDate = form.value.inputStartDate;
   }
@@ -144,6 +157,9 @@ const createLeave = async () => {
   props.close();
 };
 const updateLeave = async () => {
+  if (form.value.periode == "journe") {
+    form.value.inputEndDate = form.value.inputStartDate;
+  }
   const newUpdatedLeave: LeaveData = {
     id: form.value.id,
     idPerson: parseInt(form.value.inputName),

@@ -12,6 +12,8 @@ const props = defineProps([
   "typeTab",
   "userList",
   "bg",
+  "listPersonHolyday",
+  "weekValidate",
 ]);
 
 //line to import
@@ -35,6 +37,7 @@ import { TimeInDay } from "@/utils/constants/time-in-day";
       :block="props.block"
       :userList="$props.userList"
       :actualShift="TimeInDay.Afternoon"
+      :weekValidate="weekValidate"
     >
       <PlanningSchedule
         :date="e"
@@ -51,6 +54,7 @@ import { TimeInDay } from "@/utils/constants/time-in-day";
         :userList:="props.userList"
         :actualShift="TimeInDay.Afternoon"
         :bg="props.bg"
+        :listPersonHolyday="listPersonHolyday"
       />
     </EventModal>
   </div>

@@ -30,8 +30,15 @@
       }
       .nav {
         display: block;
-        @include md-max {
+        @include xl-max {
           display: none !important;
+        }
+        &-mobile {
+          display: none;
+          @include xl-max {
+            display: block !important;
+            margin: 1em;
+          }
         }
         ul {
           display: flex;
@@ -63,14 +70,23 @@
       .user-admin {
         display: flex;
         gap: 10px;
+        @include xl-max {
+          gap: 5px;
+        }
         align-items: center;
         .info {
           .name {
             font-size: 1.2em;
             font-weight: 600;
+            @include xl-max {
+              font-size: 0.8em;
+            }
           }
           .role {
             font-size: 0.8em;
+            @include xl-max {
+              font-size: 0.6em;
+            }
           }
         }
         .chat {
@@ -92,6 +108,11 @@
           }
         }
       }
+    }
+  }
+  .q-avatar {
+    @include xl-max {
+      font-size: 30px !important;
     }
   }
 }

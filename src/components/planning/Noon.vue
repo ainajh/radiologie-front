@@ -6,6 +6,7 @@
       :saveShift="props.saveShift"
       :block="props.block"
       :userList="props.userList"
+      :weekValidate="weekValidate"
     >
       <PlanningSchedule
         :userList="props.userList"
@@ -22,6 +23,7 @@
         :actualShift="TimeInDay.Noon"
         :reload="props.reload"
         :bg="props.bg"
+        :listPersonHolyday="listPersonHolyday"
       />
     </EventModal>
   </div>
@@ -41,6 +43,8 @@ const props = defineProps([
   "typeTab",
   "userList",
   "bg",
+  "listPersonHolyday",
+  "weekValidate",
 ]);
 
 //line to import
