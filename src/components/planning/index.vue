@@ -18,7 +18,15 @@
             <div class="font-bold">Semaine</div>
           </div>
         </div>
-        <div class="hidden lg:flex items-center">
+        <div class="hidden lg:flex items-center gap-2">
+          <q-btn
+            outline
+            color="red"
+            icon="delete"
+            label="Effacer la semaine"
+            @click="deleteSchredulWeek"
+            v-if="userDash?.role == 'admin' && !isContainValidate"
+          />
           <q-btn
             flat
             :color="isContainValidate ? 'red' : 'black'"
@@ -29,14 +37,16 @@
             @click="toggleAllPlanning"
             v-if="userDash?.role == 'admin'"
           />
+
           <q-btn
             flat
             color="black"
             icon="chat"
             @click="showCommentaire = !showCommentaire"
           >
+            <q-badge color="red" rounded floating v-if="allComment.length" />
             <q-tooltip class="bg-primary" :offset="[10, 10]">
-              Voir le commentaire cette semaine
+              Voir le commentaire cette semaine {}
             </q-tooltip>
           </q-btn>
           <q-btn
@@ -118,6 +128,12 @@
               icon="calendar_month"
               @click="showListLeave = !showListLeave"
             >
+              <q-badge
+                color="red"
+                rounded
+                floating
+                v-if="dataHolidays?.length"
+              />
               <q-tooltip class="bg-primary" :offset="[10, 10]">
                 Liste des congés
               </q-tooltip>
@@ -147,7 +163,7 @@
                     label="Aujourd'hui"
                     @click="thisMonth"
                   />
-                  <div class="flex items-center">
+                  <div class="flex items-center gap-2">
                     <q-btn flat round icon="chevron_left" @click="increment">
                       <q-tooltip class="bg-primary" :offset="[10, 10]">
                         Semaine précédente
@@ -159,6 +175,13 @@
                       </q-tooltip>
                     </q-btn>
                     <div class="font-bold">Semaine</div>
+                    <q-btn
+                      flat
+                      color="red"
+                      label="Effacer la semaine"
+                      @click="deleteSchredulWeek"
+                      v-if="userDash?.role == 'admin' && !isContainValidate"
+                    />
                   </div>
                 </q-item>
                 <q-item clickable>
@@ -180,6 +203,12 @@
                     icon="chat"
                     @click="showCommentaire = !showCommentaire"
                   >
+                    <q-badge
+                      color="red"
+                      rounded
+                      floating
+                      v-if="allComment.length"
+                    />
                     <q-tooltip class="bg-primary" :offset="[10, 10]">
                       Voir le commentaire cette semaine
                     </q-tooltip>
@@ -265,6 +294,12 @@
                       icon="calendar_month"
                       @click="showListLeave = !showListLeave"
                     >
+                      <q-badge
+                        color="red"
+                        rounded
+                        floating
+                        v-if="dataHolidays?.length"
+                      />
                       <q-tooltip class="bg-primary" :offset="[10, 10]">
                         Liste des congés
                       </q-tooltip>
@@ -355,6 +390,9 @@
                       :typeTab="typeTab"
                       :userList="userList"
                       :bg="e?.bg"
+                      :listPersonHolyday="dataHolidays"
+                      :checkIfHasPersonHoliDay="checkIfHasPersonHoliDay"
+                      :weekValidate="isContainValidate"
                     />
                   </div>
                 </div>
@@ -383,6 +421,8 @@
                       :typeTab="typeTab"
                       :userList="userList"
                       :bg="e?.bg"
+                      :listPersonHolyday="dataHolidays"
+                      :weekValidate="isContainValidate"
                     />
                   </div>
                 </div>
@@ -410,6 +450,8 @@
                       :typeTab="typeTab"
                       :userList="userList"
                       :bg="e?.bg"
+                      :listPersonHolyday="dataHolidays"
+                      :weekValidate="isContainValidate"
                     />
                   </div>
                 </div>
@@ -423,6 +465,7 @@
               <planningCongeForm
                 :fetchHolidayList="fetchHolidayList"
                 :close="() => (isOpen = false)"
+                :isContainValidate="isContainValidate"
               />
             </q-card>
           </q-dialog>
@@ -494,6 +537,7 @@ import generateColorFromString from "~/utils/functions/generate-color-from-strin
 const toast = useToast();
 const userDash: any = useCookie("user").value;
 import html2pdf from "html2pdf.js";
+import Swal from "sweetalert2";
 
 const exportToPDF = () => {
   html2pdf(document.getElementById("pdfContent"), {
@@ -561,7 +605,7 @@ function decrement() {
 function thisMonth() {
   currentMonth.value = getMonth();
   monthIndex.value = dayjs().month();
-  const i = currentMonth.value.findIndex((shift, i) => {
+  const i = currentMonth.value.findIndex((_shift, i) => {
     const found = currentMonth.value[i].findIndex(
       (e) => e.format("DD MMMM YYYY") === dayjs().format("DD MMMM YYYY")
     );
@@ -648,6 +692,7 @@ async function pasteShcedule() {
   isCopy.value = false;
   copyShcedules.value = [];
   data.value = await ScheduleService.getAll();
+  refreshMe();
 }
 
 async function cancelCopyShcedule() {
@@ -705,6 +750,7 @@ const leaveStore = useLeaveStore();
 
 const allScheduleThisWeek = ref([]);
 const isContainValidate = ref(false);
+const allComment = ref([]);
 function formatDate(dateString: string) {
   const date = new Date(dateString);
   const year = date.getFullYear();
@@ -718,6 +764,7 @@ const allCommentInThisWeek = async (ancred = false) => {
     formatDate(item)
   );
   await commentStore.getAllCommentInThisWeek(weekList);
+  allComment.value = commentStore.allComments;
   if (ancred) return;
   setTimeout(() => {
     const scrollTargetElement = document.getElementById("scroll-target");
@@ -743,8 +790,89 @@ const formatDateToString = (date: string) => {
   const dates = dayjs(date);
   return dates.format("DD MMMM YYYY");
 };
+
+// Fonction pour vérifier si une date se trouve dans une période
+function isDateInRange(date, startDate, endDate) {
+  return date >= startDate && date <= endDate;
+}
+
+const checkIfHasPersonHoliDay = (id = null) => {
+  const hasDuplicate = allScheduleThisWeek.value.map(
+    (item) => item.type_of_schedule
+  );
+
+  if (hasDuplicate.includes(1)) return true;
+
+  // Variable pour stocker le résultat global
+  let isDuringConge = false;
+
+  // Parcourir la liste des plannings
+  allScheduleThisWeek.value?.forEach((planning) => {
+    // Récupérer l'ID de la personne associée à ce planning
+    const personId = planning.person_id;
+
+    // Trouver les congés de cette personne
+    const conges = dataHolidays.value.filter(
+      (conge) => conge.idPerson === personId
+    );
+
+    // Vérifier si le planning est pendant un congé
+    const found = conges.some((conge) => {
+      const startDate = new Date(conge.dateStart);
+      const endDate = new Date(conge.dateEnd);
+      const planningDate = new Date(planning.date);
+      return isDateInRange(planningDate, startDate, endDate);
+    });
+
+    // Mettre à jour la variable isDuringConge si un congé est trouvé
+    if (found) {
+      isDuringConge = true;
+      // Si un congé est trouvé, sortir de la boucle forEach
+      return;
+    }
+  });
+
+  return isDuringConge;
+};
+const { message } = storeToRefs(commentStore);
+const deleteSchredulWeek = async () => {
+  const weekList = currentMonth.value[weekIndex.value].map((item) =>
+    formatDate(item)
+  );
+  Swal.fire({
+    title: "Supprimer cette semaine?",
+    text: "Vous ne pourrez pas revenir en arrière !",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#5cdfe4",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Oui, supprimer!",
+    cancelButtonText: "Annuler",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      await commentStore.deleteAllSheduleThisWeek(weekList);
+      const { error, msg } = message.value;
+      if (error) {
+        toast.error("Il y a une erreur lors de la suppression de la semaine");
+      } else {
+        refreshMe();
+        toast.success("Supression de la semaine en succès");
+      }
+    }
+  });
+};
 const toggleAllPlanning = async () => {
+  const check = checkIfHasPersonHoliDay();
+
+  if (check && !isContainValidate.value) {
+    toast.error(
+      "Attention le planning ne peut être validé car des médecins sont en vacance ou en doublon, merci de modifier le planning "
+    );
+    return;
+  }
+
   let modification = [];
+
   const weekStartEnd = currentMonth.value[weekIndex.value]
     ?.filter((v, idx) => idx == 0 || idx == 6)
     .map((item) => formatDate(item));
@@ -773,6 +901,10 @@ const toggleAllPlanning = async () => {
   refreshMe();
 };
 
+onMounted(() => {
+  allCommentInThisWeek(true);
+  fetchHolidayList();
+});
 const refreshMe = async () => {
   getAllSheduleThisWeek();
   data.value = await ScheduleService.getAll();
@@ -780,7 +912,7 @@ const refreshMe = async () => {
 
 watch(
   weekIndex,
-  (newValue, oldValue) => {
+  (_newValue, _oldValue) => {
     allCommentInThisWeek(true);
     getAllSheduleThisWeek();
     refreshMe();
@@ -789,7 +921,7 @@ watch(
 );
 watch(
   currentMonth,
-  (newValue, oldValue) => {
+  (_newValue, _oldValue) => {
     allCommentInThisWeek(true);
     getAllSheduleThisWeek();
     refreshMe();

@@ -30,7 +30,9 @@
               to="/dashboard/conge"
               :class="{ active: $route.path.includes('conge') }"
             >
-              {{ userDash?.role == "radiologue" ? "Prise des " : "Gestion des " }}
+              {{
+                userDash?.role == "radiologue" ? "Prise des " : "Gestion des "
+              }}
               congés</nuxt-link
             >
           </li>
@@ -78,6 +80,96 @@
           </li>
         </ul>
       </div>
+      <div class="nav-mobile">
+        <q-btn flat dense color="accent" icon="segment">
+          <q-menu fit anchor="bottom left" self="top left">
+            <q-item
+              style="min-width: 200px"
+              clickable
+              to="/dashboard"
+              :class="{
+                'bg-green-500 text-white': $route.path == '/dashboard',
+              }"
+            >
+              <q-item-section>Liste des demandes</q-item-section>
+            </q-item>
+            <q-item
+              style="min-width: 200px"
+              clickable
+              to="/dashboard/gestion-type"
+              :class="{
+                'bg-green-500 text-white': $route.path.includes('gestion-type'),
+              }"
+              v-if="userDash?.role == 'admin'"
+            >
+              <q-item-section>Gestion Type</q-item-section>
+            </q-item>
+
+            <q-item
+              style="min-width: 200px"
+              clickable
+              to="/dashboard/conge"
+              :class="{
+                'bg-green-500 text-white': $route.path.includes('conge'),
+              }"
+              v-if="userDash?.role == 'admin' || userDash?.role == 'radiologue'"
+            >
+              <q-item-section
+                >{{
+                  userDash?.role == "radiologue" ? "Prise des " : "Gestion des "
+                }}
+                congés</q-item-section
+              >
+            </q-item>
+
+            <q-item
+              style="min-width: 200px"
+              clickable
+              to="/dashboard/planning"
+              :class="{
+                'bg-green-500 text-white': $route.path.includes('planning'),
+              }"
+            >
+              <q-item-section>Planning</q-item-section>
+            </q-item>
+
+            <q-item
+              v-if="userDash?.role == 'admin'"
+              style="min-width: 200px"
+              clickable
+              to="/dashboard/utilisateur"
+              :class="{
+                'bg-green-500 text-white': $route.path.includes('utilisateur'),
+              }"
+            >
+              <q-item-section>Utilisateurs</q-item-section>
+            </q-item>
+            <q-item
+              v-if="userDash?.role == 'admin'"
+              style="min-width: 200px"
+              clickable
+              to="/dashboard/vacation"
+              :class="{
+                'bg-green-500 text-white': $route.path.includes('vacation'),
+              }"
+            >
+              <q-item-section>Nombre de vacations</q-item-section>
+            </q-item>
+            <q-item
+              v-if="userDash?.role == 'admin'"
+              style="min-width: 200px"
+              clickable
+              to="/dashboard/statistique"
+              :class="{
+                'bg-green-500 text-white':
+                  $route.path == '/dashboard/statistique',
+              }"
+            >
+              <q-item-section>Statistique</q-item-section>
+            </q-item>
+          </q-menu>
+        </q-btn>
+      </div>
       <div class="user-admin">
         <div class="chat mr-2">
           <q-badge color="red" floating>{{ badge.nb }}</q-badge>
@@ -91,7 +183,7 @@
           <div class="role text-capialize">{{ userDash?.role }}</div>
         </div>
         <div class="avatar">
-          <q-avatar style="background-color: aliceblue">
+          <q-avatar style="background-color: aliceblue" dense>
             <q-icon name="person" />
             <q-menu anchor="bottom middle" self="top middle">
               <q-btn class="p-4 flex gap-2 items-center" @click="logout">
@@ -101,7 +193,10 @@
             </q-menu>
           </q-avatar>
         </div>
-        <div class="pg-messagerie__side-new " style="height: 50px; overflow: hidden; padding: 0 !important">
+        <div
+          class="pg-messagerie__side-new"
+          style="height: 50px; overflow: hidden; padding: 0 !important"
+        >
           <q-select
             v-model="lieu"
             :options="[

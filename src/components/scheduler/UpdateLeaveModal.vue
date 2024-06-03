@@ -16,6 +16,9 @@ let inputStartDate = ref(dayjs(props.dataLeave.dateStart).format("YYYY-MM-DD"));
 let inputEndDate = ref(dayjs(props.dataLeave.dateEnd).format("YYYY-MM-DD"));
 
 async function updateHoliday() {
+  if (form.value.periode == "journe") {
+    form.value.inputEndDate = form.value.inputStartDate;
+  }
   const newUpdatedLeave: LeaveData = {
     id: props.dataLeave.id,
     idPerson: inputName.value,

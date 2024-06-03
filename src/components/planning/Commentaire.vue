@@ -31,7 +31,7 @@
             >
               <div class="font-bold w-auto">{{ item.nom }}</div>
               <div class="capitalize text-gray-500 text-xs mt-0.5">
-                {{ dayjs(item.created_at).format("DD MMMM YYYY") }}
+                {{ dayjs(item.date).format("DD MMMM YYYY") }}
               </div>
 
               <div
@@ -45,6 +45,7 @@
                 ></i>
                 <i
                   class="fa-solid fa-trash text-[15px] cursor-pointer text-red"
+                  v-if="userDash.role == 'admin'"
                   @click="deleteComment(item.idCom)"
                 ></i>
               </div>
@@ -117,7 +118,7 @@ import Swal from "sweetalert2";
 const toast = useToast();
 
 const userCookie: any = useCookie("user");
-const form = ref({ id_sender: null, comment: null });
+const form = ref({ id_sender: null, comment: null, date: null });
 const userDash: any = useCookie("user").value;
 
 const scrollTarget = ref(null);
@@ -128,6 +129,18 @@ const { message } = storeToRefs(commentStore);
 const addComment = async () => {
   form.value = { ...form.value, id_sender: userCookie.value.id };
   console.log(form.value);
+  const weekList = props.weekNow.map((item) => formatDate(item));
+  const currentDate = new Date(); // Obtenir la date actuelle
+  const currentDateString = currentDate.toISOString().slice(0, 10);
+  if (weekList.includes(currentDateString)) {
+    const formattedDate = currentDate
+      .toISOString()
+      .slice(0, 19)
+      .replace("T", " ");
+    form.value.date = formattedDate;
+  } else {
+    form.value.date = weekList[0];
+  }
 
   if (form.value.id_sender == null || !form.value.comment) {
     toast.error("Commentaire réquise ");
@@ -147,7 +160,7 @@ const allCommentInThisWeek = async (ancred = false) => {
     const scrollTargetElement = document.getElementById("scroll-target");
     if (scrollTargetElement) {
       // Faire défiler la liste de commentaires jusqu'à l'élément cible
-      scrollTargetElement.scrollIntoView({ behavior: "smooth" });
+      scrollTargetElement?.scrollIntoView({ behavior: "smooth" });
     } else {
       console.error('Element with id "scroll-target" not found in the DOM.');
     }

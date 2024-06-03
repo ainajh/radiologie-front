@@ -36,7 +36,10 @@
           <div>
             {{ item.typeOfLeave }}
           </div>
-          <div class="absolute top-1 right-2 flex gap-2">
+          <div
+            class="absolute top-1 right-2 flex gap-2"
+            v-if="userDash.role == 'admin' || item.idPerson == userDash.id"
+          >
             <i
               class="fa-solid fa-edit cursor-pointer text-blue"
               @click="toggleModal(item)"
@@ -72,6 +75,8 @@ const props = defineProps({
     type: [Object, Array],
   },
 });
+
+const userDash: any = useCookie("user");
 const openModal = ref(false);
 const dataLeave = ref(null);
 const generateColor = (str: string, isRed: boolean) => {

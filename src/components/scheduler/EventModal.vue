@@ -12,6 +12,7 @@ const props = defineProps([
   "block",
   "userList",
   "actualShift",
+  "weekValidate",
 ]);
 
 const userList = await UserService.getAll();
@@ -25,6 +26,7 @@ let inputEndDate = ref(dayjs().format("YYYY-MM-DD"));
 let message = ref();
 
 function toggleModal() {
+  if (props.weekValidate) return;
   if (isBeforeToday(props.date)) return;
   if (userDash?.role == "admin") isOpen.value = !isOpen.value;
 }
@@ -49,7 +51,10 @@ async function saveData() {
 }
 </script>
 <template>
-  <button class="w-full" @click="toggleModal"><slot></slot></button>
+  <button class="w-full" @click="toggleModal">
+    <slot></slot>
+    <i class="fa fa-solid fa-plus opacity-0"></i>
+  </button>
   <button
     v-if="isOpen"
     class="fixed z-50 inset-0 flex items-center justify-center"

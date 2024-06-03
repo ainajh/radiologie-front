@@ -16,6 +16,8 @@ const props = defineProps([
   "actualShift",
   "saveShift",
   "bg",
+  "listPersonHolyday",
+  "checkIfHasPersonHoliDay",
 ]);
 
 let isHovering = ref(false);
@@ -31,6 +33,23 @@ function onDragStart(event: any, shift: DataShift) {
   event.dataTransfer.effectAllowed = "move";
   event.dataTransfer.setData("shift", JSON.stringify(shift));
 }
+
+const filteredData = computed(() => {
+  return props.listPersonHolyday
+    .filter((item) => {
+      const startDate = new Date(item.dateStart);
+      const endDate = new Date(item.dateEnd);
+      const now = new Date(props.shift?.date);
+
+      return (
+        item.idPerson &&
+        (startDate.getTime() === now.getTime() ||
+          endDate.getTime() === now.getTime() ||
+          (startDate <= now && endDate >= now))
+      );
+    })
+    ?.map((i) => i.idPerson);
+});
 
 function generateColor(str: string, isRed: boolean) {
   if (isRed) return "#dc2626";
@@ -77,6 +96,7 @@ function displayMessage(mess: string) {
       :block="props.block"
       :userList="props.userList"
       :actualShift="props.actualShift"
+      :checkIfHasPersonHoliDay="checkIfHasPersonHoliDay"
     >
       <div
         @mouseover="showMessage"
@@ -86,21 +106,24 @@ function displayMessage(mess: string) {
         <div
           class="w-full flex flex-row space-x-0.5 justify-center items-center h-[35px] my-0.5 px-2 rounded"
           :class="{
-            'bg-red-600': props.shift.typeOfSchedule === 1,
+            'bg-red-600':
+              props.shift.typeOfSchedule === 1 ||
+              filteredData.includes(props.shift.idPerson),
             'opacity-50': props.shift.is_valid && userDash?.role == 'admin',
           }"
-         
           :style="{
-            backgroundColor: generateColor(
-              props.shift.nom,
-              props.shift.typeOfSchedule === 1
-            ),
+            backgroundColor: filteredData.includes(props.shift.idPerson)
+              ? ''
+              : generateColor(
+                  props.shift.nom,
+                  props.shift.typeOfSchedule === 1
+                ),
           }"
         >
           <p
             class="text-xs text-start flex-1 py-0.5 w-full rounded text-white relative"
           >
-            {{ props.shift.nom }} 
+            {{ props.shift.nom }}
             <!-- <span
               v-if="!props.shift.is_valid && userDash?.role == 'admin'"
               class="absolute top-1 h-[12px] w-[12px] bg-red-500 rounded"
@@ -110,13 +133,37 @@ function displayMessage(mess: string) {
               v-if="props.shift.message"
               class="absolute right-1 x h-[12px] w-[12px] rounded"
             >
-              <span class="material-icons text-black text-[15px]"> question_answer </span>
+              <span class="material-icons text-white text-[15px]">
+                question_answer
+              </span>
+            </span>
+            <span
+              :class="props.shift.message ? 'right-7' : 'right-3'"
+              class="absolute w-[12px] px-2 rounded text-xs text-white"
+              v-if="
+                props.shift.typeOfSchedule === 1 ||
+                filteredData.includes(props.shift.idPerson)
+              "
+            >
+              <span
+                class="material-icons text-white text-[15px]"
+                v-if="props.shift.typeOfSchedule === 1"
+              >
+                dynamic_feed
+              </span>
+              <span
+                class="material-icons text-white text-[15px]"
+                v-if="filteredData.includes(props.shift.idPerson)"
+              >
+                calendar_month
+              </span>
             </span>
           </p>
           <button
             v-if="
               !isBeforeToday(dayjs(props.shift?.date)) &&
-              userDash?.role == 'admin'
+              userDash?.role == 'admin' &&
+              !props.shift.is_valid
             "
             class="bg-white flex flex-nowrap justify-center items-center max-h-3 min-w-3 rounded"
             @click.stop="onDeleteBadget"

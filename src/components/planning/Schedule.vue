@@ -19,6 +19,8 @@ const props = defineProps([
   "actualShift",
   "userList",
   "bg",
+  "listPersonHolyday",
+  "checkIfHasPersonHoliDay",
 ]);
 
 function filteredShifts(): [DataShift?] {
@@ -73,6 +75,8 @@ function onDrop(event: any) {
         :actualShift="props.actualShift"
         :saveShift="props.saveShift"
         :bg="props.bg"
+        :listPersonHolyday="listPersonHolyday"
+        :checkIfHasPersonHoliDay="checkIfHasPersonHoliDay"
       />
     </div>
   </div>
