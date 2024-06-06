@@ -1,6 +1,174 @@
 <template>
   <q-layout style="min-height: 300px !important">
-    <div class="planning w-full bg-white" id="pdfContent">
+    <!-- <vue3-html2pdf
+      :show-layout="false"
+      :float-layout="true"
+      :enable-download="true"
+      :preview-modal="true"
+      :paginate-elements-by-height="300"
+      filename="hee hee"
+      :pdf-quality="12"
+      :manual-pagination="false"
+      pdf-format="a4"
+      pdf-orientation="landscape"
+      pdf-content-width="100%"
+      ref="html2Pdf"
+    >
+      <template v-slot:pdf-content>
+        <div class="m-2">
+          <div class="planning w-full bg-white">
+            <div
+              class="planning__header flex items-center justify-between px-2"
+            ></div>
+            <div class="planning__main overflow-auto" id="pdfContent">
+              <div class="planning__main-head w-full">
+                <div class="flex w-full h-full flex-nowrap gap-custom">
+                  <div
+                    class="w-[200px] h-full p-1 text-center text-xs flex-center flex-col"
+                  >
+                    <span class="capitalize font-bold">{{
+                      formatDateToString(currentMonth[weekIndex][0])
+                    }}</span>
+                    <span class="mx-2">au</span>
+                    <span class="capitalize font-bold">{{
+                      formatDateToString(currentMonth[weekIndex][6])
+                    }}</span>
+                  </div>
+                  <planning-day
+                    v-for="(day, i) in currentMonth[weekIndex]"
+                    :key="i"
+                    :day="day"
+                    :monthIndex="monthIndex"
+                  ></planning-day>
+                </div>
+              </div>
+              <div class="planning__main-content w-full">
+                <div
+                  class="flex w-full min-h-[150px] flex-nowrap gap-custom mb-1 relative"
+                  v-for="(e, i) in typeTab"
+                  :key="i"
+                >
+                  <div
+                    class="place-sticky min-w-[50px] min-h-[150px] border bg-red-500 vertical-text text-center p-1"
+                    :style="{
+                      background: `#${e.bg}`,
+                    }"
+                  >
+                    {{ e.nom_place }}
+                  </div>
+                  <div class="w-full h-full">
+                    <div
+                      class="w-full min-h-[150px] grid gap-custom"
+                      :class="e?.has_noon == 1 ? 'grid-row-3' : 'grid-row-2'"
+                    >
+                      <div
+                        :class="
+                          e?.has_noon == 1 ? 'min-h-[50px]' : 'min-h-[100px]'
+                        "
+                      >
+                        <div class="flex flex-nowrap h-full gap-custom">
+                          <div
+                            class="w-[150px] flex-center text-white font-bold"
+                            :style="{
+                              background: `#${e.bg}`,
+                            }"
+                          >
+                            {{ TimeInDay.Morning }}
+                          </div>
+                          <PlanningMorning
+                            :week="currentMonth[weekIndex]"
+                            :saveShift="saveShift"
+                            :updateShift="updateShift"
+                            :reload="refreshMe"
+                            :shifts="data"
+                            :block="e"
+                            :deleteShift="deleteShift"
+                            :monthIndex="monthIndex"
+                            :typeTab="typeTab"
+                            :userList="userList"
+                            :bg="e?.bg"
+                            :listPersonHolyday="dataHolidays"
+                            :checkIfHasPersonHoliDay="checkIfHasPersonHoliDay"
+                            :weekValidate="isContainValidate"
+                          />
+                        </div>
+                      </div>
+                      <div
+                        :class="
+                          e?.has_noon == 1 ? 'min-h-[50px]' : 'min-h-[100px]'
+                        "
+                        v-if="e?.has_noon"
+                      >
+                        <div class="flex flex-nowrap h-full gap-custom">
+                          <div
+                            class="w-[150px] flex-center text-white font-bold"
+                            :style="{
+                              background: `#${e.bg}`,
+                            }"
+                          >
+                            {{ TimeInDay.Noon }}
+                          </div>
+                          <PlanningNoon
+                            :week="currentMonth[weekIndex]"
+                            :saveShift="saveShift"
+                            :updateShift="updateShift"
+                            :reload="refreshMe"
+                            :shifts="data"
+                            :block="e"
+                            :deleteShift="deleteShift"
+                            :monthIndex="monthIndex"
+                            :typeTab="typeTab"
+                            :userList="userList"
+                            :bg="e?.bg"
+                            :listPersonHolyday="dataHolidays"
+                            :weekValidate="isContainValidate"
+                          />
+                        </div>
+                      </div>
+                      <div
+                        :class="
+                          e?.has_noon == 1 ? 'min-h-[50px]' : 'min-h-[100px]'
+                        "
+                      >
+                        <div class="flex flex-nowrap h-full gap-custom">
+                          <div
+                            class="w-[150px] flex-center text-white font-bold"
+                            :style="{
+                              background: `#${e.bg}`,
+                            }"
+                          >
+                            {{ TimeInDay.Afternoon }}
+                          </div>
+                          <PlanningAfternoon
+                            :week="currentMonth[weekIndex]"
+                            :saveShift="saveShift"
+                            :updateShift="updateShift"
+                            :reload="refreshMe"
+                            :shifts="data"
+                            :block="e"
+                            :deleteShift="deleteShift"
+                            :monthIndex="monthIndex"
+                            :typeTab="typeTab"
+                            :userList="userList"
+                            :bg="e?.bg"
+                            :listPersonHolyday="dataHolidays"
+                            :weekValidate="isContainValidate"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </vue3-html2pdf> -->
+
+    <!-- <button @click="exportToPDF($refs.html2Pdf)">click</button> -->
+
+    <div class="planning w-full bg-white">
       <div class="planning__header flex items-center justify-between px-2">
         <div class="hidden lg:flex items-center gap-2">
           <q-btn outline color="black" label="Aujourd'hui" @click="thisMonth" />
@@ -156,7 +324,7 @@
           <q-btn outline color="accent" icon="menu">
             <q-menu fit>
               <q-list style="min-width: 355px">
-                <q-item clickable>
+                <q-item clickable class="flex justify-between">
                   <q-btn
                     outline
                     color="black"
@@ -175,16 +343,24 @@
                       </q-tooltip>
                     </q-btn>
                     <div class="font-bold">Semaine</div>
-                    <q-btn
-                      flat
-                      color="red"
-                      label="Effacer la semaine"
-                      @click="deleteSchredulWeek"
-                      v-if="userDash?.role == 'admin' && !isContainValidate"
-                    />
                   </div>
                 </q-item>
-                <q-item clickable>
+                <q-item clickable class="flex justify-between">
+                  <q-btn
+                    outline
+                    color="red"
+                    icon="delete"
+                    label="Effacer la semaine"
+                    @click="deleteSchredulWeek"
+                    v-if="userDash?.role == 'admin' && !isContainValidate"
+                  />
+                  <q-btn flat color="black" icon="print">
+                    <q-tooltip class="bg-primary" :offset="[10, 10]">
+                      Imprimer
+                    </q-tooltip>
+                  </q-btn>
+                </q-item>
+                <q-item clickable class="flex justify-between">
                   <q-btn
                     flat
                     :color="isContainValidate ? 'red' : 'black'"
@@ -247,15 +423,8 @@
                     </q-tooltip>
                   </q-btn>
                 </q-item>
-                <q-item clickable>
+                <q-item clickable class="flex justify-between">
                   <div class="flex items-center">
-                    <!-- @click="exportToPDF" -->
-                    <q-btn flat color="black" icon="print">
-                      <q-tooltip class="bg-primary" :offset="[10, 10]">
-                        Imprimer
-                      </q-tooltip>
-                    </q-btn>
-                    <!-- @click="exportToPDF" -->
                     <div class="font-bold capitalize">{{ actualDate() }}</div>
                     <q-btn
                       flat
@@ -323,7 +492,7 @@
           </q-btn>
         </div>
       </div>
-      <div class="planning__main overflow-auto">
+      <div class="planning__main overflow-auto" id="pdfContent">
         <div class="planning__main-head w-full">
           <div class="flex w-full h-full flex-nowrap gap-custom">
             <div
@@ -347,14 +516,14 @@
             <!-- blocs day start  -->
           </div>
         </div>
-        <div class="planning__main-content overflow-auto w-full">
+        <div class="planning__main-content w-full">
           <div
-            class="flex w-full min-h-[150px] flex-nowrap gap-custom mb-1"
+            class="flex w-full min-h-[150px] flex-nowrap gap-custom mb-1 relative"
             v-for="(e, i) in typeTab"
             :key="i"
           >
             <div
-              class="min-w-[50px] min-h-[150px] border bg-red-500 vertical-text text-center p-1"
+              class="place-sticky min-w-[50px] min-h-[150px] border bg-red-500 vertical-text text-center p-1"
               :style="{
                 background: `#${e.bg}`,
               }"
@@ -514,14 +683,9 @@ definePageMeta({
   middleware: "admin",
 });
 import dayjs, { Dayjs } from "dayjs";
-import "dayjs/locale/fr"; // Importer le module pour les mois en français
-dayjs.locale("fr"); // Définir la locale sur le français
-// import { ref, onMounted } from "vue";
-// import Week from "./Week.vue";
-// import Morning from "./Morning.vue";
-// import UpdateLeaveModal from "./UpdateLeaveModal.vue";
-// import Afternoon from "./Afternoon.vue";
-// import Noon from "./Noon.vue";
+import "dayjs/locale/fr";
+dayjs.locale("fr");
+
 import getMonth from "@/utils/functions/get-month";
 import ScheduleService from "@/services/schedule.service";
 import TypeService from "@/services/type.service";
@@ -530,26 +694,16 @@ import { TimeInDay } from "@/utils/constants/time-in-day";
 import UserService from "@/services/user.service";
 import LeaveService from "@/services/leave.service";
 import type { LeaveData } from "~/utils/constants/leave-interface";
-import isBeforeToday from "~/utils/functions/is-before-today";
-import ValidationDefaultNoonShouldShow from "~/utils/functions/validation-noon-should-show";
 import { useToast } from "vue-toastification";
-import generateColorFromString from "~/utils/functions/generate-color-from-string";
 const toast = useToast();
 const userDash: any = useCookie("user").value;
-import html2pdf from "html2pdf.js";
 import Swal from "sweetalert2";
 
-const exportToPDF = () => {
-  html2pdf(document.getElementById("pdfContent"), {
-    margin: [0, 3, 0, 3],
-    filename: "planning.pdf",
-    image: { type: "jpeg", quality: 1 }, // Augmentez la qualité de l'image si nécessaire
-    html2canvas: { scale: 5 },
-    jsPDF: {
-      format: "a4",
-      orientation: "landscape",
-    },
-  });
+import Vue3Html2pdf from "vue3-html2pdf";
+
+const exportToPDF = (references: any) => {
+  console.log(references);
+  references.generatePdf();
 };
 
 let currentMonth = ref(getMonth());
@@ -988,6 +1142,12 @@ watch(showCommentaire, (val) => {
     .lg\:flex {
       display: flex !important;
     }
+  }
+
+  .place-sticky {
+    position: sticky;
+    left: 0;
+    z-index: 2;
   }
 }
 </style>

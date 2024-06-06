@@ -24,7 +24,7 @@
                   : tp == 'radiologue'
                   ? 'Radiologue'
                   : tp == 'secretaire'
-                  ? 'Secretaire'
+                  ? 'Secretaire/Manip'
                   : tp
               "
               :class="type == tp ? 'active' : ''"
