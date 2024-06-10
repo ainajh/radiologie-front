@@ -31,7 +31,7 @@
             >
               <div class="font-bold w-auto">{{ item.nom }}</div>
               <div class="capitalize text-gray-500 text-xs mt-0.5">
-                {{ dayjs(item.date).format("DD MMMM YYYY") }}
+                {{ dayjs(item.created_at).format("DD MMMM YYYY") }}
               </div>
 
               <div

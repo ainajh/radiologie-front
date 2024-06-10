@@ -43,14 +43,13 @@
           v-model="form.inputName"
           :options="userList"
           label="Nom du radiologue"
-          option-label="nom"
           class="mb-4"
-          transition-show="flip-up"
-          transition-hide="flip-down"
           :rules="[required]"
+          option-label="nom"
           option-value="id"
           emit-value
           map-options
+          behavior="dialog"
         />
         <q-input
           dense

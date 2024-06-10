@@ -33,9 +33,12 @@ export const useLeaveStore = defineStore("leaveStore", {
         this.message = { error: false, msg: response?.data?.message };
       } catch (error: any) {
         const err = error?.response?.data?.error;
+
         this.message = {
           error: true,
-          msg: err,
+          msg:
+            error?.response?.data?.message ||
+            "Erreur lors de l'execution de la requête",
         };
       }
     },

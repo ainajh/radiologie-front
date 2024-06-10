@@ -39,7 +39,7 @@
         <q-table
           class="w-full"
           flat
-          :rows="allUsers.filter(u => type === '' ? u : u.role == type)"
+          :rows="allUsers.filter((u) => (type === '' ? u : u.role == type))"
           :columns="columns"
           bordered
           row-key="name"
@@ -72,8 +72,12 @@
             <q-td :props="props">
               <div class="w-full">
                 <q-badge
-                  :label="props.value"
-                  class="w-full p-2 justify-center"
+                  :label="
+                    props.value == 'secretaire'
+                      ? 'secrétaire/manip'
+                      : props.value
+                  "
+                  class="w-full p-2 justify-center capitalize"
                   :class="{
                     'bg-secondary': props.value === 'admin',
                     'bg-blue': props.value === 'medecin',

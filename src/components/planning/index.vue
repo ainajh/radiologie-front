@@ -214,7 +214,7 @@
           >
             <q-badge color="red" rounded floating v-if="allComment.length" />
             <q-tooltip class="bg-primary" :offset="[10, 10]">
-              Voir le commentaire cette semaine {}
+              Voir le commentaire cette semaine
             </q-tooltip>
           </q-btn>
           <q-btn

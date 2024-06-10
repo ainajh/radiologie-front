@@ -72,7 +72,7 @@ export default {
       roleDatas: [
         { label: "Administrateur", id: "admin" },
         { label: "Radiologue", id: "radiologue" },
-        { label: "Secretaire", id: "secretaire" },
+        { label: "Secrétaire/Manip", id: "secretaire" },
         { label: "Médecin", id: "medecin" },
       ],
     };
