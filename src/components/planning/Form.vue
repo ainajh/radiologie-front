@@ -108,9 +108,11 @@ import LeaveService from "~/services/leave.service";
 import type { LeaveData } from "~/utils/constants/leave-interface";
 
 const userDash: any = useCookie("user").value;
-const userList = computed(async () => {
-  return await UserService.getAll();
+const utilisateurStore = useUtilisateurStore();
+onMounted(async () => {
+  await utilisateurStore.getAllRadiologues();
 });
+const { userList } = storeToRefs(utilisateurStore);
 
 const form = ref({
   periode: "journe",

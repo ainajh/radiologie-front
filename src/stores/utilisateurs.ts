@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 export const useUtilisateurStore = defineStore("utilisateurStore", {
   state: () => ({
     allUsers: [],
+    userList: [],
     message: {
       error: false,
       msg: "",
@@ -23,11 +24,27 @@ export const useUtilisateurStore = defineStore("utilisateurStore", {
         console.log(error);
       }
     },
+    async getAllRadiologues() {
+      const token = useCookie("token");
+      const { $api } = useNuxtApp();
+      try {
+        const response = await $api?.get(`/user/only-type/radiologue`, {
+          headers: {
+            Authorization: `Bearer ${token.value}`,
+          },
+        });
+        this.userList = response?.data?.users;
+      } catch (error) {
+        console.log(error);
+      }
+    },
     async createUser(data: any) {
       const { $api } = useNuxtApp();
       const token = useCookie("token");
       try {
-        const response = await $api?.post(`user/add`, data, { headers: { Authorization: `Bearer ${token.value}` }});
+        const response = await $api?.post(`user/add`, data, {
+          headers: { Authorization: `Bearer ${token.value}` },
+        });
         this.message = { error: false, msg: response?.data?.message };
       } catch (error: any) {
         const err = error?.response?.data?.error;
@@ -41,7 +58,9 @@ export const useUtilisateurStore = defineStore("utilisateurStore", {
       const { $api } = useNuxtApp();
       const token = useCookie("token");
       try {
-        const response = await $api?.delete(`user/delete/${id}`, {headers: { Authorization: `Bearer ${token.value}` }});
+        const response = await $api?.delete(`user/delete/${id}`, {
+          headers: { Authorization: `Bearer ${token.value}` },
+        });
         this.message = { error: false, msg: response?.data?.message };
       } catch (error: any) {
         const err = error?.response?.data?.error;
@@ -56,13 +75,17 @@ export const useUtilisateurStore = defineStore("utilisateurStore", {
       const { $api } = useNuxtApp();
       const token = useCookie("token");
       try {
-        const response = await $api?.put(`user/update`, {
-          ...data,
-        }, {
-          headers: {
-            Authorization: `Bearer ${token.value}`,
+        const response = await $api?.put(
+          `user/update`,
+          {
+            ...data,
           },
-        });
+          {
+            headers: {
+              Authorization: `Bearer ${token.value}`,
+            },
+          }
+        );
 
         this.message = { error: false, msg: response?.data?.message };
       } catch (error: any) {
@@ -78,11 +101,15 @@ export const useUtilisateurStore = defineStore("utilisateurStore", {
       const { $api } = useNuxtApp();
       const token = useCookie("token");
       try {
-        const response = await $api?.post(`user/verify`, { id }, {
-          headers: {
-            Authorization: `Bearer ${token.value}`,
-          },
-        });
+        const response = await $api?.post(
+          `user/verify`,
+          { id },
+          {
+            headers: {
+              Authorization: `Bearer ${token.value}`,
+            },
+          }
+        );
 
         this.message = { error: false, msg: response?.data?.message };
       } catch (error: any) {

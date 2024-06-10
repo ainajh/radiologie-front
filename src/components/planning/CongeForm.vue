@@ -108,9 +108,13 @@ import type { LeaveData } from "~/utils/constants/leave-interface";
 import { useToast } from "vue-toastification";
 
 const userDash: any = useCookie("user").value;
-const userList = computed(async () => {
-  return await UserService.getAll();
+
+const utilisateurStore = useUtilisateurStore();
+onMounted(async () => {
+  await utilisateurStore.getAllRadiologues();
 });
+const { userList } = storeToRefs(utilisateurStore);
+
 const toast = useToast();
 
 const form = ref({

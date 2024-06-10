@@ -15,9 +15,11 @@ const props = defineProps([
   "weekValidate",
 ]);
 
-const userList = computed(async () => {
-  return await UserService.getAll();
+const utilisateurStore = useUtilisateurStore();
+onMounted(async () => {
+  await utilisateurStore.getAllRadiologues();
 });
+const { userList } = storeToRefs(utilisateurStore);
 let isOpen = ref(false);
 let inputValue = ref<number>();
 let inputSelectTypeSchedule = ref<number>(0);

@@ -22,9 +22,11 @@ const props = defineProps([
   "saveShift",
   "checkIfHasPersonHoliDay",
 ]);
-const userList = computed(async () => {
-  return await UserService.getAll();
+const utilisateurStore = useUtilisateurStore();
+onMounted(async () => {
+  await utilisateurStore.getAllRadiologues();
 });
+const { userList } = storeToRefs(utilisateurStore);
 let isOpen = ref(false);
 let inputName = ref(props.shift?.nom);
 let inputPerson = ref<number>(props.shift?.idPerson);
