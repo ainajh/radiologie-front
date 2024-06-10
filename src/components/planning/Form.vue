@@ -108,7 +108,9 @@ import LeaveService from "~/services/leave.service";
 import type { LeaveData } from "~/utils/constants/leave-interface";
 
 const userDash: any = useCookie("user").value;
-const userList = await UserService.getAll();
+const userList = computed(async () => {
+  return await UserService.getAll();
+});
 
 const form = ref({
   periode: "journe",

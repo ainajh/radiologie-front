@@ -15,7 +15,9 @@ const props = defineProps([
   "weekValidate",
 ]);
 
-const userList = await UserService.getAll();
+const userList = computed(async () => {
+  return await UserService.getAll();
+});
 let isOpen = ref(false);
 let inputValue = ref<number>();
 let inputSelectTypeSchedule = ref<number>(0);

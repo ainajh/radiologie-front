@@ -7,7 +7,9 @@ import LeaveService from "~/services/leave.service";
 
 const props = defineProps(["dataLeave", "fetchHolidayList"]);
 
-const userList = await UserService.getAll();
+const userList = computed(async () => {
+  return await UserService.getAll();
+});
 let isOpen = ref(false);
 let inputName = ref<number>(props.dataLeave.idPerson);
 let inputTypeOfHoliday = ref<string>("Holiday");

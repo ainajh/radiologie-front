@@ -22,7 +22,9 @@ const props = defineProps([
   "saveShift",
   "checkIfHasPersonHoliDay",
 ]);
-const userList = await UserService.getAll();
+const userList = computed(async () => {
+  return await UserService.getAll();
+});
 let isOpen = ref(false);
 let inputName = ref(props.shift?.nom);
 let inputPerson = ref<number>(props.shift?.idPerson);

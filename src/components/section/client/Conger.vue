@@ -86,7 +86,9 @@ import { mapState } from "pinia";
 import { mapActions } from "pinia";
 
 import Swal from "sweetalert2";
-const userList = await userService.getAll();
+const userList = computed(async () => {
+  return await UserService.getAll();
+});
 export default {
   setup() {
     const me = useCookie("user");

@@ -50,6 +50,7 @@
         autofocus
         lazy-rules
         :rules="[required]"
+        behavior="dialog"
       />
     </q-card-section>
     <q-card-section class="q-pt-none">
