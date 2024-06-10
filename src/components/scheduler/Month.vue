@@ -41,9 +41,11 @@ let monthIndex = ref(0);
 let data = ref<any[]>();
 let dataHolidays = ref<any[]>();
 let copyShcedules = ref<any[]>();
-const userList = computed(async () => {
-  return await UserService.getAll();
+const utilisateurStore = useUtilisateurStore();
+onMounted(async () => {
+  await utilisateurStore.getAllRadiologues();
 });
+const { userList } = storeToRefs(utilisateurStore);
 const typeTab = await TypeService.getAllPlaces();
 let isOpen = ref(false);
 let isCopy = ref(false);
