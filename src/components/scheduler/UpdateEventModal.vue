@@ -187,13 +187,12 @@ const toogleValidatePlanning = (id: number, validate: boolean) => {
                 :options="userList"
                 label="Nom du radiologue"
                 option-label="nom"
-                transition-show="flip-up"
-                transition-hide="flip-down"
                 option-value="id"
                 emit-value
                 map-options
                 :disable="isDuplicate"
                 :readonly="props.shift.is_valid == 1"
+                behavior="dialog"
               />
               <q-input
                 v-if="!isDuplicate"
@@ -214,10 +213,9 @@ const toogleValidatePlanning = (id: number, validate: boolean) => {
                 autofocus
                 :options="getShifts()"
                 label="Selectionner la vacation"
-                transition-show="flip-up"
-                transition-hide="flip-down"
                 :disable="isDuplicate"
                 :readonly="props.shift.is_valid == 1"
+                behavior="dialog"
               />
               <q-select
                 v-model="inputBlock"
@@ -228,14 +226,13 @@ const toogleValidatePlanning = (id: number, validate: boolean) => {
                 label="Selectionner le lieu "
                 option-label="nom_place"
                 class="mb-4"
-                transition-show="flip-up"
-                transition-hide="flip-down"
                 option-value="id"
                 emit-value
                 map-options
                 :disable="isDuplicate"
                 v-if="!isDuplicate"
                 :readonly="props.shift.is_valid == 1"
+                behavior="dialog"
               />
               <q-input
                 v-if="!isDuplicate"

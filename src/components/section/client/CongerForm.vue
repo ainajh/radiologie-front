@@ -1,7 +1,40 @@
 <template>
   <q-form @submit.prevent="submited()" class="py-3">
     <h2 class="text-center text-xl py-2 font-bold">Prendre un congé</h2>
-
+    <div class="mb-2 ml-2">
+      <div class="q-gutter-sm">
+        <q-radio v-model="form.periode" val="journe" label="Une journée" />
+        <q-radio v-model="form.periode" val="periodique" label="Périodique" />
+      </div>
+    </div>
+    <!-- Date de debut  -->
+    <q-card-section class="q-pt-none">
+      <q-input
+        dense
+        outlined
+        autofocus
+        type="date"
+        label="Date de debut"
+        v-model="form.dateStart"
+        lazy-rules
+        :rules="[required]"
+      />
+    </q-card-section>
+    <!-- Date de debut -->
+    <!-- Date de fin  -->
+    <q-card-section class="q-pt-none" v-if="form.periode == 'periodique'">
+      <q-input
+        dense
+        outlined
+        autofocus
+        type="date"
+        label="Date de fin"
+        v-model="form.dateEnd"
+        lazy-rules
+        :rules="[required]"
+      />
+    </q-card-section>
+    <!-- Date de fin -->
     <!-- Type  -->
     <q-card-section class="q-pt-none" v-if="me.role == 'admin'">
       <q-select
@@ -31,34 +64,6 @@
       />
     </q-card-section>
     <!-- Type -->
-    <!-- Date de debut  -->
-    <q-card-section class="q-pt-none">
-      <q-input
-        dense
-        outlined
-        autofocus
-        type="date"
-        label="Date de debut"
-        v-model="form.dateStart"
-        lazy-rules
-        :rules="[required]"
-      />
-    </q-card-section>
-    <!-- Date de debut -->
-    <!-- Date de fin  -->
-    <q-card-section class="q-pt-none">
-      <q-input
-        dense
-        outlined
-        autofocus
-        type="date"
-        label="Date de fin"
-        v-model="form.dateEnd"
-        lazy-rules
-        :rules="[required]"
-      />
-    </q-card-section>
-    <!-- Date de fin -->
 
     <q-card-actions align="right" class="text-primary">
       <q-btn
@@ -93,6 +98,7 @@ export default {
   data() {
     return {
       form: {
+        periode: "journe",
         idPerson: null,
         typeOfLeave: null,
         dateStart: null,
@@ -128,6 +134,10 @@ export default {
     },
     async submited() {
       this.loading = true;
+
+      if (this.form.periode == "journe") {
+        this.form.dateEnd = this.form.dateStart;
+      }
 
       if (this.me.role != "admin") {
         this.form.idPerson = this.me?.id;

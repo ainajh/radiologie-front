@@ -68,7 +68,7 @@ async function saveData() {
       >
         <button @click.stop="" class="">
           <div
-            class="bg-white border-2 md:w-[400px] w-[80vw] px-5 py-4 shadow-xl"
+            class="bg-white border-2 md:w-[400px] w-[80vw] px-5 min-h-[200px] py-4 shadow-xl"
           >
             <div class="flex flex-col space-x-2 space-y-4 items-start">
               <div
@@ -89,16 +89,14 @@ async function saveData() {
                   v-model="inputValue"
                   dense
                   outlined
-                  autofocus
                   :options="userList"
                   label="Nom du radiologue"
                   option-label="nom"
                   class="mb-4"
-                  transition-show="flip-up"
-                  transition-hide="flip-down"
                   option-value="id"
                   emit-value
                   map-options
+                  behavior="dialog"
                 />
               </div>
               <div class="text-primary flex gap-2 justify-end w-full">

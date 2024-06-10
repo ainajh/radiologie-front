@@ -34,12 +34,16 @@
         <div class="mb-5">
           <label class="text-caption">Rôle</label>
           <q-select
-            :options="['admin', 'radiologue', 'secretaire']"
+            :options="roleData"
             label="Rôle"
             dense
             outlined
             autofocus
             v-model="form.role"
+            option-label="label"
+            option-value="value"
+            emit-value
+            map-options
           />
         </div>
         <div class="mb-5">
@@ -84,6 +88,11 @@ export default {
         role: "admin",
       },
       disableBtn: false,
+      roleData: [
+        { value: "admin", label: "Admin" },
+        { value: "radiologue", label: "Radiologue" },
+        { value: "secretaire", label: "Secrétaire/Manip" },
+      ],
     };
   },
   methods: {
