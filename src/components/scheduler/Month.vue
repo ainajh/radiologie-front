@@ -41,7 +41,9 @@ let monthIndex = ref(0);
 let data = ref<any[]>();
 let dataHolidays = ref<any[]>();
 let copyShcedules = ref<any[]>();
-const userList = await UserService.getAll();
+const userList = computed(async () => {
+  return await UserService.getAll();
+});
 const typeTab = await TypeService.getAllPlaces();
 let isOpen = ref(false);
 let isCopy = ref(false);
