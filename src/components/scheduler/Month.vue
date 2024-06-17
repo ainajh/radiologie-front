@@ -56,7 +56,10 @@ let inputEndDate = ref(dayjs().format("YYYY-MM-DD"));
 let copiedId = ref<string>("");
 
 onMounted(async () => {
-  data.value = await ScheduleService.getAll();
+  const weekList = currentMonth.value[weekIndex.value].map((item) =>
+    formatDate(item)
+  );
+  data.value = await ScheduleService.getAll(weekList);
   thisMonth();
   fetchHolidayList();
 });
@@ -172,14 +175,20 @@ async function pasteShcedule() {
   copiedId.value = dataResponseFromCopy?.copiedId ?? "";
   isCopy.value = false;
   copyShcedules.value = [];
-  data.value = await ScheduleService.getAll();
+  const weekList = currentMonth.value[weekIndex.value].map((item) =>
+    formatDate(item)
+  );
+  data.value = await ScheduleService.getAll(weekList);
 }
 
 async function cancelCopyShcedule() {
   await ScheduleService.undoCopyPaste(copiedId.value);
 
   copiedId.value = "";
-  data.value = await ScheduleService.getAll();
+  const weekList = currentMonth.value[weekIndex.value].map((item) =>
+    formatDate(item)
+  );
+  data.value = await ScheduleService.getAll(weekList);
 }
 
 function toggleModalCreateHotiday() {
@@ -285,7 +294,7 @@ const toggleAllPlanning = async () => {
   await leaveStore.revalidateWeek({
     semaine: arrToString(weekStartEnd),
     modification: arrToString(modification),
-    valide : !isValidExists
+    valide: !isValidExists,
   });
 
   refreshMe();
@@ -293,7 +302,10 @@ const toggleAllPlanning = async () => {
 
 const refreshMe = async () => {
   getAllSheduleThisWeek();
-  data.value = await ScheduleService.getAll();
+  const weekList = currentMonth.value[weekIndex.value].map((item) =>
+    formatDate(item)
+  );
+  data.value = await ScheduleService.getAll(weekList);
 };
 
 watch(

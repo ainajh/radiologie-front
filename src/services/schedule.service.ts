@@ -28,14 +28,19 @@ const resDataHandler = (res: AxiosResponse) => {
   }
 };
 
-const getAll = async (): Promise<[DataShift] | undefined> => {
+const getAll = async (data: any): Promise<[DataShift] | undefined> => {
   try {
     const { $api } = useNuxtApp();
-    const response = await $api?.get(`/schedule`, {
-      headers: {
-        Authorization: `Bearer ${useCookie("token").value}`,
-      },
-    });
+    const response = await $api?.post(
+      `/schedule`,
+      data,
+
+      {
+        headers: {
+          Authorization: `Bearer ${useCookie("token").value}`,
+        },
+      }
+    );
 
     return resDataHandler(response);
   } catch (error: any) {

@@ -31,3 +31,21 @@ const UserService = {
 };
 
 export default UserService;
+
+const data = {
+  id_user: "dja2134",
+  questions: [
+    {
+      question_id: 1,
+      response: "fafkjakljaf",
+    },
+    {
+      question_id: 2,
+      response: "fafkjakljaf",
+    },
+    {
+      question_id: 3,
+      response: "fafkjakljaf",
+    },
+  ],
+};

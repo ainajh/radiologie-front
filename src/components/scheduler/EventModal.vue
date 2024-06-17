@@ -16,9 +16,7 @@ const props = defineProps([
 ]);
 
 const utilisateurStore = useUtilisateurStore();
-onMounted(async () => {
-  await utilisateurStore.getAllRadiologues();
-});
+ 
 const { userList } = storeToRefs(utilisateurStore);
 let isOpen = ref(false);
 let inputValue = ref<number>();
