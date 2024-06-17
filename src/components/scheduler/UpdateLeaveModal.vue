@@ -8,9 +8,7 @@ import LeaveService from "~/services/leave.service";
 const props = defineProps(["dataLeave", "fetchHolidayList"]);
 
 const utilisateurStore = useUtilisateurStore();
-onMounted(async () => {
-  await utilisateurStore.getAllRadiologues();
-});
+ 
 const { userList } = storeToRefs(utilisateurStore);
 let isOpen = ref(false);
 let inputName = ref<number>(props.dataLeave.idPerson);

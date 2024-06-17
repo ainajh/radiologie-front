@@ -547,7 +547,7 @@
                     >
                       {{ TimeInDay.Morning }}
                     </div>
-                    <PlanningMorning
+                    <LazyPlanningMorning
                       :week="currentMonth[weekIndex]"
                       :saveShift="saveShift"
                       :updateShift="updateShift"
@@ -578,7 +578,7 @@
                     >
                       {{ TimeInDay.Noon }}
                     </div>
-                    <PlanningNoon
+                    <LazyPlanningNoon
                       :week="currentMonth[weekIndex]"
                       :saveShift="saveShift"
                       :updateShift="updateShift"
@@ -607,7 +607,7 @@
                     >
                       {{ TimeInDay.Afternoon }}
                     </div>
-                    <PlanningAfternoon
+                    <LazyPlanningAfternoon
                       :week="currentMonth[weekIndex]"
                       :saveShift="saveShift"
                       :updateShift="updateShift"
@@ -629,7 +629,7 @@
           </div>
 
           <!-- modal creation congé  -->
-          <q-dialog v-model="isOpen" persistent>
+          <lazy-q-dialog v-model="isOpen" persistent>
             <q-card class="w-[80vw] md:w-[40vw]">
               <planningCongeForm
                 :fetchHolidayList="fetchHolidayList"
@@ -637,20 +637,20 @@
                 :isContainValidate="isContainValidate"
               />
             </q-card>
-          </q-dialog>
+          </lazy-q-dialog>
           <!-- modal creation congé  -->
         </div>
       </div>
 
       <q-drawer v-model="showCommentaire" :width="380" elevated side="right">
-        <PlanningCommentaire
+        <LazyPlanningCommentaire
           :weekNow="currentMonth[weekIndex]"
           :show="showCommentaire"
           @close="showCommentaire = false"
         />
       </q-drawer>
       <q-drawer v-model="showListLeave" :width="380" elevated side="right">
-        <PlanningListeLeaveWeek
+        <LazyPlanningListeLeaveWeek
           :data="dataHolidays"
           @close="showListLeave = false"
           @delete="deleteHoliday"
@@ -671,7 +671,7 @@
               <q-btn flat round icon="chevron_right" @click="decrement" />
             </div>
           </div>
-        </PlanningListeLeaveWeek>
+        </LazyPlanningListeLeaveWeek>
       </q-drawer>
     </div>
   </q-layout>
@@ -727,8 +727,11 @@ const showListLeave = ref(false);
 const periode = ref("journe");
 
 onMounted(async () => {
-  data.value = await ScheduleService.getAll();
   thisMonth();
+  const weekList = currentMonth.value[weekIndex.value].map((item) =>
+    formatDate(item)
+  );
+  data.value = await ScheduleService.getAll(weekList);
   fetchHolidayList();
 });
 
@@ -835,6 +838,9 @@ async function copyShcedule() {
 }
 
 async function pasteShcedule() {
+  const weekList = currentMonth.value[weekIndex.value].map((item) =>
+    formatDate(item)
+  );
   const pasteShcedules = [
     currentMonth.value[weekIndex.value][0].format("YYYY-MM-DD"),
     currentMonth.value[weekIndex.value][6].format("YYYY-MM-DD"),
@@ -846,15 +852,18 @@ async function pasteShcedule() {
   copiedId.value = dataResponseFromCopy?.copiedId ?? "";
   isCopy.value = false;
   copyShcedules.value = [];
-  data.value = await ScheduleService.getAll();
+  data.value = await ScheduleService.getAll(weekList);
   refreshMe();
 }
 
 async function cancelCopyShcedule() {
+  const weekList = currentMonth.value[weekIndex.value].map((item) =>
+    formatDate(item)
+  );
   await ScheduleService.undoCopyPaste(copiedId.value);
 
   copiedId.value = "";
-  data.value = await ScheduleService.getAll();
+  data.value = await ScheduleService.getAll(weekList);
 }
 
 function toggleModalCreateHotiday() {
@@ -1061,8 +1070,11 @@ onMounted(() => {
   fetchHolidayList();
 });
 const refreshMe = async () => {
+  const weekList = currentMonth.value[weekIndex.value].map((item) =>
+    formatDate(item)
+  );
   getAllSheduleThisWeek();
-  data.value = await ScheduleService.getAll();
+  data.value = await ScheduleService.getAll(weekList);
 };
 
 watch(

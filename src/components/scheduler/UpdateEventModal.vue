@@ -23,9 +23,7 @@ const props = defineProps([
   "checkIfHasPersonHoliDay",
 ]);
 const utilisateurStore = useUtilisateurStore();
-onMounted(async () => {
-  await utilisateurStore.getAllRadiologues();
-});
+ 
 const { userList } = storeToRefs(utilisateurStore);
 let isOpen = ref(false);
 let inputName = ref(props.shift?.nom);

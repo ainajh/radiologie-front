@@ -31,7 +31,7 @@
             </div>
             <div class="px-5 pb-5 text-[15px]">
               <div class="flex justify-between">
-                <p>Sécretaire</p>
+                <p>Secrétaire/Manip</p>
                 <q-btn flat color="secondary" icon="forum" @click="{
                   global = true;
                   listReceiver = users.filter(u => u.lieu === locat && u.role === 'secretaire');
