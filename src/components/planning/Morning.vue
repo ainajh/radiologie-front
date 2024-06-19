@@ -1,6 +1,6 @@
 <template>
   <div class="schedulan border" v-for="(e, i) in props.week" :key="i">
-    <LazyEventModal
+    <EventModal
       :date="e"
       :actualShift="TimeInDay.Morning"
       :saveShift="props.saveShift"
@@ -27,7 +27,7 @@
         :listPersonHolyday="listPersonHolyday"
         :checkIfHasPersonHoliDay="checkIfHasPersonHoliDay"
       />
-    </LazyEventModal>
+    </EventModal>
   </div>
 </template>
 
