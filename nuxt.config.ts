@@ -26,6 +26,14 @@ export default defineNuxtConfig({
           href: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css",
         },
       ],
+      script: [
+        {
+          defer: true,
+          type: "text/javascript",
+          async: true,
+          src: "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
+        },
+      ],
     },
   },
   modules: ["@nuxtjs/tailwindcss", "@pinia/nuxt", "nuxt-quasar-ui"],
