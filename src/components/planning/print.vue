@@ -1,329 +1,7 @@
 <template>
   <q-layout style="min-height: 300px !important">
-    <div class="planning w-full bg-white">
-      <div class="planning__header flex items-center justify-between px-2">
-        <div class="hidden lg:flex items-center gap-2">
-          <q-btn outline color="black" label="Aujourd'hui" @click="thisMonth" />
-          <div class="flex items-center">
-            <q-btn flat round icon="chevron_left" @click="increment">
-              <q-tooltip class="bg-primary" :offset="[10, 10]">
-                Semaine précédente
-              </q-tooltip>
-            </q-btn>
-            <q-btn flat round icon="chevron_right" @click="decrement">
-              <q-tooltip class="bg-primary" :offset="[10, 10]">
-                Semaine suivante
-              </q-tooltip>
-            </q-btn>
-            <div class="font-bold">Semaine</div>
-          </div>
-        </div>
-        <div class="hidden lg:flex items-center gap-2">
-          <q-btn
-            outline
-            color="red"
-            icon="delete"
-            label="Effacer la semaine"
-            @click="deleteSchredulWeek"
-            v-if="userDash?.role == 'admin' && !isContainValidate"
-          />
-          <q-btn
-            flat
-            :color="isContainValidate ? 'red' : 'black'"
-            icon="event_available"
-            :label="
-              isContainValidate ? 'Dévalider la semaine' : 'Valider la semaine'
-            "
-            @click="toggleAllPlanning"
-            v-if="userDash?.role == 'admin'"
-          />
-
-          <q-btn
-            flat
-            color="black"
-            icon="chat"
-            @click="showCommentaire = !showCommentaire"
-          >
-            <q-badge color="red" rounded floating v-if="allComment.length" />
-            <q-tooltip class="bg-primary" :offset="[10, 10]">
-              Voir le commentaire cette semaine
-            </q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            color="black"
-            icon="content_copy"
-            v-if="userDash.role == 'admin'"
-            @click="copyShcedule"
-          >
-            <q-tooltip class="bg-primary" :offset="[10, 10]">
-              Copier
-            </q-tooltip></q-btn
-          >
-          <q-btn
-            flat
-            color="black"
-            icon="content_paste"
-            v-if="isCopy && userDash.role == 'admin'"
-            @click="pasteShcedule"
-          >
-            <q-tooltip class="bg-primary" :offset="[10, 10]">
-              Coller
-            </q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            color="red"
-            icon="highlight_off"
-            v-if="copiedId != null && copiedId != ''"
-            @click="cancelCopyShcedule"
-          >
-            <q-tooltip class="bg-red" :offset="[10, 10]">
-              Annuler la copie
-            </q-tooltip>
-          </q-btn>
-          <!-- @click="exportToPDF" -->
-          <q-btn flat color="black" icon="print" @click="printPlanning">
-            <q-tooltip class="bg-primary" :offset="[10, 10]">
-              Imprimer
-            </q-tooltip>
-          </q-btn>
-          <!-- @click="exportToPDF" -->
-          <div class="flex items-center">
-            <div class="font-bold capitalize">{{ actualDate() }}</div>
-            <q-btn
-              flat
-              round
-              icon="chevron_left"
-              @click="
-              (e: MouseEvent) => {
-                previousMonth()
-                return e
-              }
-            "
-            >
-              <q-tooltip class="bg-primary" :offset="[10, 10]">
-                Mois précédent
-              </q-tooltip>
-            </q-btn>
-            <q-btn
-              flat
-              round
-              icon="chevron_right"
-              @click=" (e: MouseEvent) => {
-                nextMonth() 
-                return e
-              }
-            "
-            >
-              <q-tooltip class="bg-primary" :offset="[10, 10]">
-                Mois suivant
-              </q-tooltip>
-            </q-btn>
-          </div>
-          <div class="flex items-center gap-2">
-            <q-btn
-              outline
-              color="black"
-              icon="calendar_month"
-              @click="showListLeave = !showListLeave"
-            >
-              <q-badge
-                color="red"
-                rounded
-                floating
-                v-if="dataHolidays?.length"
-              />
-              <q-tooltip class="bg-primary" :offset="[10, 10]">
-                Liste des congés
-              </q-tooltip>
-            </q-btn>
-
-            <q-btn
-              outline
-              color="black"
-              icon="data_saver_on"
-              v-if="userDash?.role != 'secretaire'"
-              @click="toggleModalCreateHotiday"
-            >
-              <q-tooltip class="bg-primary" :offset="[10, 10]">
-                Ajouter congés
-              </q-tooltip>
-            </q-btn>
-          </div>
-        </div>
-        <div class="flex lg:hidden w-full">
-          <q-btn outline color="accent" icon="menu">
-            <q-menu fit>
-              <q-list style="min-width: 355px">
-                <q-item clickable class="flex justify-between">
-                  <q-btn
-                    outline
-                    color="black"
-                    label="Aujourd'hui"
-                    @click="thisMonth"
-                  />
-                  <div class="flex items-center gap-2">
-                    <q-btn flat round icon="chevron_left" @click="increment">
-                      <q-tooltip class="bg-primary" :offset="[10, 10]">
-                        Semaine précédente
-                      </q-tooltip>
-                    </q-btn>
-                    <q-btn flat round icon="chevron_right" @click="decrement">
-                      <q-tooltip class="bg-primary" :offset="[10, 10]">
-                        Semaine suivante
-                      </q-tooltip>
-                    </q-btn>
-                    <div class="font-bold">Semaine</div>
-                  </div>
-                </q-item>
-                <q-item clickable class="flex justify-between">
-                  <q-btn
-                    outline
-                    color="red"
-                    icon="delete"
-                    label="Effacer la semaine"
-                    @click="deleteSchredulWeek"
-                    v-if="userDash?.role == 'admin' && !isContainValidate"
-                  />
-                  <!-- <q-btn flat color="black" icon="print" @click="printPlanning">
-                    <q-tooltip class="bg-primary" :offset="[10, 10]">
-                      Imprimer
-                    </q-tooltip>
-                  </q-btn> -->
-                </q-item>
-                <q-item clickable class="flex justify-between">
-                  <q-btn
-                    flat
-                    :color="isContainValidate ? 'red' : 'black'"
-                    icon="event_available"
-                    :label="
-                      isContainValidate
-                        ? 'Dévalider la semaine'
-                        : 'Valider la semaine'
-                    "
-                    @click="toggleAllPlanning"
-                    v-if="userDash?.role == 'admin'"
-                  />
-                  <q-btn
-                    flat
-                    color="black"
-                    icon="chat"
-                    @click="showCommentaire = !showCommentaire"
-                  >
-                    <q-badge
-                      color="red"
-                      rounded
-                      floating
-                      v-if="allComment.length"
-                    />
-                    <q-tooltip class="bg-primary" :offset="[10, 10]">
-                      Voir le commentaire cette semaine
-                    </q-tooltip>
-                  </q-btn>
-                  <q-btn
-                    flat
-                    color="black"
-                    icon="content_copy"
-                    v-if="userDash.role == 'admin'"
-                    @click="copyShcedule"
-                  >
-                    <q-tooltip class="bg-primary" :offset="[10, 10]">
-                      Copier
-                    </q-tooltip></q-btn
-                  >
-                  <q-btn
-                    flat
-                    color="black"
-                    icon="content_paste"
-                    v-if="isCopy && userDash.role == 'admin'"
-                    @click="pasteShcedule"
-                  >
-                    <q-tooltip class="bg-primary" :offset="[10, 10]">
-                      Coller
-                    </q-tooltip>
-                  </q-btn>
-                  <q-btn
-                    flat
-                    color="red"
-                    icon="highlight_off"
-                    v-if="copiedId != null && copiedId != ''"
-                    @click="cancelCopyShcedule"
-                  >
-                    <q-tooltip class="bg-red" :offset="[10, 10]">
-                      Annuler la copie
-                    </q-tooltip>
-                  </q-btn>
-                </q-item>
-                <q-item clickable class="flex justify-between">
-                  <div class="flex items-center">
-                    <div class="font-bold capitalize">{{ actualDate() }}</div>
-                    <q-btn
-                      flat
-                      round
-                      icon="chevron_left"
-                      @click="
-                      (e: MouseEvent) => {
-                        previousMonth()
-                        return e
-                      }
-                    "
-                    >
-                      <q-tooltip class="bg-primary" :offset="[10, 10]">
-                        Mois précédent
-                      </q-tooltip>
-                    </q-btn>
-                    <q-btn
-                      flat
-                      round
-                      icon="chevron_right"
-                      @click=" (e: MouseEvent) => {
-                        nextMonth() 
-                        return e
-                      }
-                    "
-                    >
-                      <q-tooltip class="bg-primary" :offset="[10, 10]">
-                        Mois suivant
-                      </q-tooltip>
-                    </q-btn>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <q-btn
-                      outline
-                      color="black"
-                      icon="calendar_month"
-                      @click="showListLeave = !showListLeave"
-                    >
-                      <q-badge
-                        color="red"
-                        rounded
-                        floating
-                        v-if="dataHolidays?.length"
-                      />
-                      <q-tooltip class="bg-primary" :offset="[10, 10]">
-                        Liste des congés
-                      </q-tooltip>
-                    </q-btn>
-
-                    <q-btn
-                      outline
-                      color="black"
-                      icon="data_saver_on"
-                      v-if="userDash?.role != 'secretaire'"
-                      @click="toggleModalCreateHotiday"
-                    >
-                      <q-tooltip class="bg-primary" :offset="[10, 10]">
-                        Ajouter congés
-                      </q-tooltip>
-                    </q-btn>
-                  </div>
-                </q-item>
-              </q-list>
-            </q-menu>
-          </q-btn>
-        </div>
-      </div>
+    <div class="planning-print w-full bg-white">
+      <div class="blocked"></div>
       <div class="planning__main overflow-auto" id="pdfContent">
         <div class="planning__main-head w-full">
           <div class="flex w-full h-full flex-nowrap gap-custom">
@@ -331,16 +9,16 @@
               class="w-[200px] h-full p-1 text-center text-xs flex-center flex-col"
             >
               <span class="capitalize font-bold">{{
-                formatDateToString(currentMonth[weekIndex][0])
+                formatDateToString(dataToPrint[0])
               }}</span>
               <span class="mx-2">au</span>
               <span class="capitalize font-bold">{{
-                formatDateToString(currentMonth[weekIndex][6])
+                formatDateToString(dataToPrint[6])
               }}</span>
             </div>
             <!-- blocs day start  -->
             <planning-day
-              v-for="(day, i) in currentMonth[weekIndex]"
+              v-for="(day, i) in dataToPrint"
               :key="i"
               :day="day"
               :monthIndex="monthIndex"
@@ -380,7 +58,7 @@
                       {{ TimeInDay.Morning }}
                     </div>
                     <LazyPlanningMorning
-                      :week="currentMonth[weekIndex]"
+                      :week="dataToPrint"
                       :saveShift="saveShift"
                       :updateShift="updateShift"
                       :reload="refreshMe"
@@ -411,7 +89,7 @@
                       {{ TimeInDay.Noon }}
                     </div>
                     <LazyPlanningNoon
-                      :week="currentMonth[weekIndex]"
+                      :week="dataToPrint"
                       :saveShift="saveShift"
                       :updateShift="updateShift"
                       :reload="refreshMe"
@@ -440,7 +118,7 @@
                       {{ TimeInDay.Afternoon }}
                     </div>
                     <LazyPlanningAfternoon
-                      :week="currentMonth[weekIndex]"
+                      :week="dataToPrint"
                       :saveShift="saveShift"
                       :updateShift="updateShift"
                       :reload="refreshMe"
@@ -476,7 +154,7 @@
 
       <q-drawer v-model="showCommentaire" :width="380" elevated side="right">
         <LazyPlanningCommentaire
-          :weekNow="currentMonth[weekIndex]"
+          :weekNow="dataToPrint"
           :show="showCommentaire"
           @close="showCommentaire = false"
         />
@@ -491,11 +169,11 @@
           <div class="flex items-center justify-between">
             <div>
               <span class="capitalize font-bold">{{
-                formatDateToString(currentMonth[weekIndex][0])
+                formatDateToString(dataToPrint[0])
               }}</span>
               <span class="mx-2">au</span>
               <span class="capitalize font-bold">{{
-                formatDateToString(currentMonth[weekIndex][6])
+                formatDateToString(dataToPrint[6])
               }}</span>
             </div>
             <div>
@@ -528,6 +206,8 @@ const toast = useToast();
 const userDash: any = useCookie("user").value;
 import Swal from "sweetalert2";
 
+const router = useRouter();
+
 import Vue3Html2pdf from "vue3-html2pdf";
 
 const exportToPDF = (references: any) => {
@@ -543,6 +223,10 @@ let dataHolidays = ref<any[]>();
 let copyShcedules = ref<any[]>();
 const utilisateurStore = useUtilisateurStore();
 onMounted(async () => {
+  if (dataToPrint.value.length === 0) {
+    router.push("/dashboard/planning");
+    return;
+  }
   await utilisateurStore.getAllRadiologues();
 });
 const { userList } = storeToRefs(utilisateurStore);
@@ -557,12 +241,17 @@ let copiedId = ref<string>("");
 const showCommentaire = ref(false);
 const showListLeave = ref(false);
 const periode = ref("journe");
+const route = useRoute();
 
 onMounted(async () => {
+  if (dataToPrint.value.length === 0) {
+    router.push("/dashboard/planning");
+    return;
+  }
   thisMonth();
-  const weekList = currentMonth.value[weekIndex.value].map((item) =>
-    formatDate(item)
-  );
+
+  const weekList = dataToPrint.value.map((item) => formatDate(item));
+
   data.value = await ScheduleService.getAll(weekList);
   fetchHolidayList();
 });
@@ -660,8 +349,8 @@ async function deleteShift(id: number) {
 
 async function copyShcedule() {
   copyShcedules.value = [
-    currentMonth.value[weekIndex.value][0].format("YYYY-MM-DD"),
-    currentMonth.value[weekIndex.value][6].format("YYYY-MM-DD"),
+    dataToPrint.value[0].format("YYYY-MM-DD"),
+    dataToPrint.value[6].format("YYYY-MM-DD"),
   ];
 
   isCopy.value = true;
@@ -670,12 +359,10 @@ async function copyShcedule() {
 }
 
 async function pasteShcedule() {
-  const weekList = currentMonth.value[weekIndex.value].map((item) =>
-    formatDate(item)
-  );
+  const weekList = dataToPrint.value.map((item) => formatDate(item));
   const pasteShcedules = [
-    currentMonth.value[weekIndex.value][0].format("YYYY-MM-DD"),
-    currentMonth.value[weekIndex.value][6].format("YYYY-MM-DD"),
+    dataToPrint.value[0].format("YYYY-MM-DD"),
+    dataToPrint.value[6].format("YYYY-MM-DD"),
   ];
   const dataResponseFromCopy = await ScheduleService.copyPaste(
     copyShcedules.value,
@@ -689,9 +376,7 @@ async function pasteShcedule() {
 }
 
 async function cancelCopyShcedule() {
-  const weekList = currentMonth.value[weekIndex.value].map((item) =>
-    formatDate(item)
-  );
+  const weekList = dataToPrint.value.map((item) => formatDate(item));
   await ScheduleService.undoCopyPaste(copiedId.value);
 
   copiedId.value = "";
@@ -729,8 +414,8 @@ async function createHoliday() {
 
 async function fetchHolidayList() {
   dataHolidays.value = await LeaveService.getAllBetweenTwoDate(
-    currentMonth.value[weekIndex.value][0].format("YYYY-MM-DD"),
-    currentMonth.value[weekIndex.value][6].format("YYYY-MM-DD")
+    dataToPrint.value[0].format("YYYY-MM-DD"),
+    dataToPrint.value[6].format("YYYY-MM-DD")
   );
 }
 
@@ -756,9 +441,7 @@ function formatDate(dateString: string) {
   return `${year}-${month}-${day}`;
 }
 const allCommentInThisWeek = async (ancred = false) => {
-  const weekList = currentMonth.value[weekIndex.value].map((item) =>
-    formatDate(item)
-  );
+  const weekList = dataToPrint.value.map((item) => formatDate(item));
   await commentStore.getAllCommentInThisWeek(weekList);
   allComment.value = commentStore.allComments;
   if (ancred) return;
@@ -773,9 +456,7 @@ const allCommentInThisWeek = async (ancred = false) => {
   }, 500);
 };
 const getAllSheduleThisWeek = async () => {
-  const weekList = currentMonth.value[weekIndex.value].map((item) =>
-    formatDate(item)
-  );
+  const weekList = dataToPrint.value.map((item) => formatDate(item));
   await commentStore.getAllSheduleThisWeek(weekList);
   allScheduleThisWeek.value = commentStore.allScheduleThisWeek;
   isContainValidate.value = commentStore.allScheduleThisWeek?.some(
@@ -830,20 +511,9 @@ const checkIfHasPersonHoliDay = (id = null) => {
 
   return isDuringConge;
 };
-
-const printPlanning = () => {
-  const router = useRouter();
-  const weekList = currentMonth.value[weekIndex.value];
-  dataToPrint.value = weekList;
-  router.push({
-    path: "/dashboard/imprimer",
-  });
-};
 const { message, dataToPrint } = storeToRefs(commentStore);
 const deleteSchredulWeek = async () => {
-  const weekList = currentMonth.value[weekIndex.value].map((item) =>
-    formatDate(item)
-  );
+  const weekList = dataToPrint.value.map((item) => formatDate(item));
   Swal.fire({
     title: "Supprimer cette semaine?",
     text: "Vous ne pourrez pas revenir en arrière !",
@@ -878,7 +548,7 @@ const toggleAllPlanning = async () => {
 
   let modification = [];
 
-  const weekStartEnd = currentMonth.value[weekIndex.value]
+  const weekStartEnd = dataToPrint.value
     ?.filter((v, idx) => idx == 0 || idx == 6)
     .map((item) => formatDate(item));
 
@@ -907,13 +577,15 @@ const toggleAllPlanning = async () => {
 };
 
 onMounted(() => {
+  if (dataToPrint.value.length === 0) {
+    router.push("/dashboard/planning");
+    return;
+  }
   allCommentInThisWeek(true);
   fetchHolidayList();
 });
 const refreshMe = async () => {
-  const weekList = currentMonth.value[weekIndex.value].map((item) =>
-    formatDate(item)
-  );
+  const weekList = dataToPrint.value.map((item) => formatDate(item));
   getAllSheduleThisWeek();
   data.value = await ScheduleService.getAll(weekList);
 };
@@ -948,7 +620,23 @@ watch(showCommentaire, (val) => {
 });
 </script>
 <style lang="scss">
-.planning {
+.planning-print {
+  * > .opacity-50 {
+    opacity: 1 !important;
+  }
+  * > .material-icons {
+    display: none !important;
+  }
+  * > {
+    .del-x {
+      display: none !important;
+    }
+  }
+  .day {
+    padding-top: 1em;
+    padding-bottom: 1em;
+  }
+  margin-top: 10px;
   .gap-custom {
     gap: 1px;
   }
@@ -977,15 +665,15 @@ watch(showCommentaire, (val) => {
     width: calc((100% - 150px) / 7);
     min-width: 165px;
   }
-  height: calc(100vh - 60px);
+  height: 100%;
   display: grid;
-  grid-template-rows: 50px calc(100% - 50px);
+  grid-template-rows: 100%;
 
   &__header {
   }
   &__main {
     display: grid;
-    grid-template-rows: 50px calc(100% - 50px - 3px);
+    grid-template-rows: 100%;
     gap: 3px;
     &-head {
     }
@@ -1003,5 +691,13 @@ watch(showCommentaire, (val) => {
     left: 0;
     z-index: 2;
   }
+}
+.blocked {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  background: transparent;
+  z-index: 999999;
 }
 </style>

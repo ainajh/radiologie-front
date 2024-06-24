@@ -36,7 +36,7 @@ function onDragStart(event: any, shift: DataShift) {
 
 const filteredData = computed(() => {
   return props.listPersonHolyday
-    .filter((item) => {
+    ?.filter((item) => {
       const startDate = new Date(item.dateStart);
       const endDate = new Date(item.dateEnd);
       const now = new Date(props.shift?.date);
@@ -108,11 +108,11 @@ function displayMessage(mess: string) {
           :class="{
             'bg-red-600':
               props.shift.typeOfSchedule === 1 ||
-              filteredData.includes(props.shift.idPerson),
+              filteredData?.includes(props.shift.idPerson),
             'opacity-50': props.shift.is_valid && userDash?.role == 'admin',
           }"
           :style="{
-            backgroundColor: filteredData.includes(props.shift.idPerson)
+            backgroundColor: filteredData?.includes(props.shift.idPerson)
               ? ''
               : generateColor(
                   props.shift.nom,
@@ -142,7 +142,7 @@ function displayMessage(mess: string) {
               class="absolute w-[12px] px-2 rounded text-xs text-white"
               v-if="
                 props.shift.typeOfSchedule === 1 ||
-                filteredData.includes(props.shift.idPerson)
+                filteredData?.includes(props.shift.idPerson)
               "
             >
               <span
@@ -153,7 +153,7 @@ function displayMessage(mess: string) {
               </span>
               <span
                 class="material-icons text-white text-[15px]"
-                v-if="filteredData.includes(props.shift.idPerson)"
+                v-if="filteredData?.includes(props.shift.idPerson)"
               >
                 calendar_month
               </span>
@@ -169,7 +169,7 @@ function displayMessage(mess: string) {
             @click.stop="onDeleteBadget"
           >
             <p
-              class="items-center flex justify-center text-cyan-800 font-bold text-sm"
+              class=" items-center flex justify-center text-cyan-800 font-bold text-sm del-x"
             >
               &times;
             </p>

@@ -20,6 +20,7 @@ export const useCommentScheduleStore = defineStore("commentScheduleStore", {
       error: boolean;
       msg: string;
     };
+    dataToPrint: any;
   } => ({
     allComments: [],
     allScheduleThisWeek: [],
@@ -28,6 +29,7 @@ export const useCommentScheduleStore = defineStore("commentScheduleStore", {
       error: false,
       msg: "",
     },
+    dataToPrint: [],
   }),
 
   actions: {
