@@ -120,7 +120,7 @@ function displayMessage(mess: string) {
             @click.stop="onDeleteBadget"
           >
             <p
-              class="items-center flex justify-center text-cyan-800 font-bold text-sm"
+              class=" items-center flex justify-center text-cyan-800 font-bold text-sm del-x"
             >
               &times;
             </p>

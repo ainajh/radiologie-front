@@ -640,7 +640,7 @@ watch(
                   @click.stop="() => deleteHoliday(parseInt(holiday.id))"
                 >
                   <p
-                    class="items-center flex justify-center text-cyan-800 font-bold text-sm"
+                    class=" items-center flex justify-center text-cyan-800 font-bold text-sm del-x"
                   >
                     &times;
                   </p>
